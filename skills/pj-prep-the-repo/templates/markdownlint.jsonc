@@ -1,0 +1,5 @@
+{
+  "default": true,
+  // Vale checks sentence length. Line length is not a rule.
+  "MD013": false
+}

@@ -1,0 +1,6 @@
+extends: occurrence
+message: "Procedure step: max 20 words."
+scope: list
+level: error
+max: 20
+token: \b(\w+)\b

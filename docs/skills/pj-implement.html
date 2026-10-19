@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pj-implement</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<p class="back"><a href="../index.html">← flow</a></p>
+<h1>pj-implement</h1>
+<p class="lead">Implements a spec-ready issue and opens a PR.</p>
+
+<table>
+  <tr><th>Input</th><td><code>#issue</code></td></tr>
+  <tr><th>Requires</th><td>The issue has <code>spec-ready</code>.</td></tr>
+  <tr><th>Result</th><td>A PR with <code>Closes #&lt;n&gt;</code>. The issue is then Implemented.</td></tr>
+</table>
+
+<h2>Steps</h2>
+<ol>
+  <li>Check for <code>spec-ready</code>. If it is not there, stop and suggest <a href="pj-grill-for-specs-readiness.html"><code>pj-grill-for-specs-readiness</code></a>.</li>
+  <li>If the issue has children from <a href="pj-decompose.html"><code>pj-decompose</code></a>, stop. Implement the children.</li>
+  <li>Read the spec from <code>attachments</code> at <code>issues/&lt;n&gt;/spec.md</code>.</li>
+  <li>Assess the size of the bite. If it is too big, recommend <a href="pj-decompose.html"><code>pj-decompose</code></a> and stop. The user can override this.</li>
+  <li>Work in the worktree <code>.worktrees/&lt;n&gt;</code> on the branch <code>pj/&lt;n&gt;-&lt;slug&gt;</code>. If it exists, continue in it. <a href="pj-repro.html"><code>pj-repro</code></a> can create it first. If not, create it and install the dependencies.</li>
+  <li>Write the design to <code>attachments</code> at <code>issues/&lt;n&gt;/design.md</code>.</li>
+  <li>Get an adversarial review of the design. Fix the blocking findings.</li>
+  <li>Record each decision that is hard to reverse as an ADR in <code>docs/adr/</code>.</li>
+  <li>Write the code and the tests.</li>
+  <li>Update <code>docs/</code> so that the docs show the new state of the system.</li>
+  <li>Check the Definition of Done.</li>
+  <li>Save the evidence to <code>attachments</code> at <code>issues/&lt;n&gt;/evidence/</code>.</li>
+  <li>Open the PR.</li>
+</ol>
+
+<h2 id="too-big">Too big</h2>
+<p>The limits come from <code>biteSize</code> in <a href="pj-prep-the-repo.html#config"><code>.pj/config.json</code></a>: 7/400, 8/800, or 9/1600. The bite is too big if one of these is true. <a href="pj-decompose.html"><code>pj-decompose</code></a> uses the same criteria.</p>
+<ul>
+  <li>The spec has more acceptance criteria than the limit.</li>
+  <li>The estimated diff has more lines than the limit. Do not count tests or generated code.</li>
+  <li>The issue has parts that can ship on their own.</li>
+</ul>
+
+<h2>Design</h2>
+<p>Make the design as short as the change allows. A small change needs a few lines.</p>
+<pre>## Approach            how, in a few sentences
+## Changes             modules and files to change
+## Data model          the delta, as a Mermaid diagram (if any)
+## Test plan           acceptance criterion → test; key logic for mutation tests
+## Docs                files in docs/ to update; ADR candidates
+## Risks               security, access, performance, migration, failure modes</pre>
+
+<h2>Design review</h2>
+<ul>
+  <li>Run the review in a subagent with a fresh context. Use a different model if one is available.</li>
+  <li>The reviewer gets the spec, the design, and <code>docs/</code>. It does not get the reasoning of the author.</li>
+  <li>Rubric:
+    <ol>
+      <li>Does the design cover each acceptance criterion and each edge case?</li>
+      <li>Is there a simpler approach?</li>
+      <li>Does it conflict with the data model or an ADR?</li>
+      <li>Are the risks handled?</li>
+      <li>Will the tests in the test plan catch a real bug?</li>
+    </ol>
+  </li>
+  <li>Each finding is <em>blocking</em> or <em>non-blocking</em>.</li>
+  <li>Maximum 2 rounds. If blocking findings remain after round 2, comment on the issue with the design and the findings, and stop.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+  <li>Each acceptance criterion has at least one test.</li>
+  <li>Build, lint, and tests pass. Use the commands from the Project section of <code>AGENTS.md</code>.</li>
+  <li>Mutation tests ran on the key logic that changed. Kill each mutant that survives, or explain it in the PR.</li>
+  <li><code>docs/</code> is up to date.</li>
+  <li>The code follows the rules in <code>AGENTS.md</code>.</li>
+  <li>UI change: screenshots at the same viewports as the mockup.</li>
+</ul>
+
+<h2>Pull request</h2>
+<pre>Closes #&lt;n&gt;
+
+Spec · Design · Evidence          (links to attachments)
+
+## Acceptance criteria            (checklist, each with its test)
+## Agent decisions                (made during implementation)
+## Surviving mutants              (if any, with the reason)</pre>
+
+<h2>Rules</h2>
+<ul>
+  <li>Never change the issue labels.</li>
+  <li>Small deviation from the spec: record it under <em>Agent decisions</em> in the PR.</li>
+  <li>A deviation that changes an acceptance criterion: comment on the issue and stop. A human decides.</li>
+  <li>If you cannot get to a PR: push the branch, comment on the issue with the reason, and stop. Do not open a draft PR.</li>
+</ul>
+
+<h2>Devlog</h2>
+<p>At the end of the run, append one entry to the <a href="../index.html#devlog">devlog</a>. Also append one if the run stops early.</p>
+</main>
+</body>
+</html>

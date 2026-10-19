@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pj-grill-for-specs-readiness</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<p class="back"><a href="../index.html">← flow</a></p>
+<h1>pj-grill-for-specs-readiness</h1>
+<p class="lead">Checks that an issue meets the Definition of Ready. Builds the spec on the way.</p>
+
+<table>
+  <tr><th>Input</th><td><code>#issue</code></td></tr>
+  <tr><th>Requires</th><td>An open issue with no linked PR.</td></tr>
+  <tr><th>Result</th><td>The <code>spec-ready</code> label and the spec on the <code>attachments</code> branch, or the <code>needs-input</code> label and questions.</td></tr>
+</table>
+
+<h2>Steps</h2>
+<ol>
+  <li>Read the issue, its comments, and its attachments.</li>
+  <li>Update the spec section in the issue body with the new answers.</li>
+  <li>Check the spec against the Definition of Ready.</li>
+  <li>If a check fails: post the questions in one comment, set <code>needs-input</code>, and remove <code>spec-ready</code>.</li>
+  <li>If all checks pass:
+    <ol type="a">
+      <li>Commit the spec to <code>attachments</code> at <code>issues/&lt;n&gt;/spec.md</code>.</li>
+      <li>Comment on the issue with a link to the spec.</li>
+      <li>Set <code>spec-ready</code> and remove <code>needs-input</code>.</li>
+    </ol>
+  </li>
+</ol>
+
+<h2>Rules</h2>
+<ul>
+  <li>This is the only skill that sets <code>needs-input</code>.</li>
+  <li>After a human answers, run the skill again.</li>
+  <li>The spec lives in the issue body between <code>&lt;!-- pj:spec:start --&gt;</code> and <code>&lt;!-- pj:spec:end --&gt;</code>. Do not change text outside the markers.</li>
+  <li>The human can answer any question with "agent decides". The agent then makes the decision and records it under <em>Agent decisions</em>. Never mix agent decisions with human decisions.</li>
+</ul>
+
+<h2>Definition of Ready</h2>
+<table>
+  <tr><th>Item</th><th>When</th><th>Content</th></tr>
+  <tr><td>Acceptance criteria</td><td>Always</td><td>Testable criteria. Out of scope, in one line.</td></tr>
+  <tr><td>Bug details</td><td>Bug</td><td>Steps to reproduce, expected and actual behaviour, environment.</td></tr>
+  <tr><td>Data model</td><td>Any persistence</td><td>Entities and relations. A migration plan in natural language if the change affects existing data.</td></tr>
+  <tr><td>Mockup</td><td>Any UI activity</td><td>A link to the mockup on <code>attachments</code>. If there is no mockup, ask for one and suggest <a href="pj-mock-it-up.html"><code>pj-mock-it-up</code></a>. If the human defers, the agent runs <code>pj-mock-it-up</code> and records this as an agent decision.</td></tr>
+  <tr><td>Edge cases</td><td>Always</td><td>Each edge case, with the expected behaviour.</td></tr>
+  <tr><td>Performance, security, access</td><td>Always</td><td>Each one has an answer. "N/A, because …" is an answer.</td></tr>
+</table>
+
+<h2>Spec format</h2>
+<pre>## Spec
+### Acceptance criteria
+### Bug details          (steps, expected, actual, environment)
+### Data model           (mermaid erDiagram, migration plan)
+### Mockup               (links)
+### Edge cases
+### Performance
+### Security
+### Access
+### Human decisions      Q-003: stream the file, no background job
+### Agent decisions      Q-007: page size 50 (deferred by human)</pre>
+
+<h2>Questions</h2>
+<ul>
+  <li>Ask a maximum of 15 questions in one round. Ask the questions with the highest risk first.</li>
+  <li>Number the questions <code>Q-001</code>, <code>Q-002</code>, and so on. Numbers are unique in the issue and continue from one round to the next. To get the next number, find the highest <code>Q-nnn</code> in the issue comments.</li>
+  <li>If the agent has a preferred answer, suggest it. Give a maximum of three options. Put the preferred option first.</li>
+</ul>
+<pre>**Q-016** What happens when the export has more than 10k rows?
+  a) Stream the file (preferred)
+  b) Run a background job and send an email
+  c) Reject with an error
+
+Reply: Q-016: a   or   Q-016: agent decides</pre>
+
+<h2>Devlog</h2>
+<p>At the end of the run, append one entry to the <a href="../index.html#devlog">devlog</a>. Also append one if the run stops early.</p>
+</main>
+</body>
+</html>

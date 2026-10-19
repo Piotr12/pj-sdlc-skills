@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pj-next-round</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<p class="back"><a href="../index.html">← flow</a></p>
+<h1>pj-next-round</h1>
+<p class="lead">Looks at the issues, PRs, and repo, and suggests the next actions. It does not change anything.</p>
+
+<table>
+  <tr><th>Input</th><td>None. Works on the current repo.</td></tr>
+  <tr><th>Requires</th><td>None.</td></tr>
+  <tr><th>Result</th><td>The top 5 actions as commands to paste, and the actions for the human.</td></tr>
+</table>
+
+<h2>Steps</h2>
+<ol>
+  <li>Read the open issues, their labels, and their linked PRs.</li>
+  <li>Read the open PRs: review rounds, unresolved threads, CI status.</li>
+  <li>Find the possible actions with the table below.</li>
+  <li>Sort them by priority. Pick the top 5.</li>
+  <li>Group the actions that can run in parallel.</li>
+  <li>Show the report. Write the commands in the syntax of the current agent, ready to paste.</li>
+</ol>
+
+<h2>Actions</h2>
+<table>
+  <tr><th>Priority</th><th>State</th><th>Action</th></tr>
+  <tr><td>1</td><td>PR with unresolved <code>[pj-review]</code> threads</td><td><a href="pj-address-review.html"><code>pj-address-review</code></a></td></tr>
+  <tr><td>2</td><td>PR with new commits after the last review, or with no review</td><td><a href="pj-review.html"><code>pj-review</code></a></td></tr>
+  <tr><td>3</td><td><code>needs-input</code> with a human answer after the last grill</td><td><a href="pj-grill-for-specs-readiness.html"><code>pj-grill-for-specs-readiness</code></a></td></tr>
+  <tr><td>4</td><td><code>spec-ready</code>, no PR, no stop comment</td><td><a href="pj-implement.html"><code>pj-implement</code></a>, <a href="pj-repro.html"><code>pj-repro</code></a> for a bug, <a href="pj-decompose.html"><code>pj-decompose</code></a> if implement said too big</td></tr>
+  <tr><td>5</td><td>Fresh</td><td><code>pj-grill-for-specs-readiness</code>, or <a href="pj-mock-it-up.html"><code>pj-mock-it-up</code></a> first for a UI change</td></tr>
+</table>
+<p>Finish work before you start new work. In each priority, older items go first. Skip an issue with an open <code>Depends on #x</code>.</p>
+
+<h2>Human actions</h2>
+<p>List these apart. They have no command.</p>
+<ul>
+  <li><code>needs-input</code> with no answer: answer the questions.</li>
+  <li>PR with a clean review, or at the round limit: approve and merge.</li>
+  <li>Parent issue with all children closed: close it.</li>
+  <li>An issue where a skill stopped with a comment: read it and decide.</li>
+</ul>
+
+<h2>Parallel</h2>
+<ul>
+  <li>Actions can run in parallel if they work on different issues and PRs, and are not likely to change the same files.</li>
+  <li>Use the spec and the design to guess the files. If two actions can change the same files, put them in different groups.</li>
+  <li>Group A runs first. Group B runs after A, and so on.</li>
+  <li>Run each parallel action in its own session. Each skill uses its own worktree.</li>
+</ul>
+
+<h2>Report</h2>
+<pre>pj-next-round · 2026-10-19 21:40 Europe/Warsaw
+
+#  Group  Command                              Why
+1  A      /pj-address-review 51                3 open [pj-review] threads
+2  A      /pj-review 48                        new commits after round 1
+3  A      /pj-implement 42                     spec-ready, no PR
+4  A      /pj-grill-for-specs-readiness 57     Fresh
+5  B      /pj-implement 44                     spec-ready; same module as #42
+
+Human
+- #39  answer Q-016 to Q-018
+- #47  review round 3 is clean: approve and merge
+- #30  all children closed: close the parent</pre>
+
+<h2>Rules</h2>
+<ul>
+  <li>Read-only. Do not run the commands.</li>
+  <li>Do not write to the devlog.</li>
+</ul>
+</main>
+</body>
+</html>

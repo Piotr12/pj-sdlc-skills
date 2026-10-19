@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pj-decompose</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<p class="back"><a href="../index.html">← flow</a></p>
+<h1>pj-decompose</h1>
+<p class="lead">Splits an issue that is too big into child issues.</p>
+
+<table>
+  <tr><th>Input</th><td><code>#issue</code> (the parent)</td></tr>
+  <tr><th>Requires</th><td>The parent has <code>spec-ready</code>.</td></tr>
+  <tr><th>Result</th><td>Child issues under the parent. Each child has a spec and <code>spec-ready</code>.</td></tr>
+</table>
+
+<h2>Steps</h2>
+<ol>
+  <li>Read the parent spec from <code>attachments</code> at <code>issues/&lt;parent&gt;/spec.md</code>.</li>
+  <li>If the parent already has children, show them and stop. Do not make duplicates.</li>
+  <li>Split the work into slices. Show the plan to the user and wait for approval.</li>
+  <li>Create one child issue for each slice.</li>
+  <li>For each child, commit a spec to <code>attachments</code> at <code>issues/&lt;child&gt;/spec.md</code>.</li>
+  <li>Set <code>spec-ready</code> on each child.</li>
+  <li>Comment on the parent with a task list of the children.</li>
+</ol>
+
+<h2>Slicing rules</h2>
+<ul>
+  <li>Each slice is vertical. It ships behaviour that a user or a test can see, not a layer such as "backend only".</li>
+  <li>Each acceptance criterion of the parent goes to exactly one child.</li>
+  <li>Each child fits in one <a href="pj-implement.html"><code>pj-implement</code></a> run. Use the same <a href="pj-implement.html#too-big">"too big" criteria</a> as <code>pj-implement</code>.</li>
+  <li>Make slices independent when possible. If order matters, write <code>Depends on #x</code> in the child.</li>
+  <li>One level only. A child does not get children.</li>
+</ul>
+
+<h2>Child issue</h2>
+<pre>Parent: #&lt;parent&gt;
+Depends on: #x                      (if needed)
+
+&lt;!-- pj:spec:start --&gt;
+## Spec
+Parent spec: &lt;link to issues/&lt;parent&gt;/spec.md&gt;
+### Acceptance criteria             (the subset for this slice)
+### Edge cases                      (the subset for this slice)
+### Data model, Mockup, …           (links to the parts of the parent that apply)
+&lt;!-- pj:spec:end --&gt;</pre>
+
+<h2>Parent</h2>
+<ul>
+  <li>The parent keeps <code>spec-ready</code>. <code>pj-implement</code> refuses a parent that has children.</li>
+  <li>The parent comment holds a task list: <code>- [ ] #12</code>. GitHub shows the progress.</li>
+  <li>A human closes the parent when all children are closed. Agents do not close issues.</li>
+</ul>
+
+<h2>Links</h2>
+<ul>
+  <li>Link each child to the parent as a GitHub sub-issue.</li>
+  <li>Also write <code>Parent: #n</code> in the child, so that an agent sees the parent in the issue body.</li>
+</ul>
+
+<h2>Related</h2>
+<ul>
+  <li><a href="pj-implement.html"><code>pj-implement</code></a> recommends this skill when the bite is too big. A human can also run it directly.</li>
+</ul>
+
+<h2>Devlog</h2>
+<p>At the end of the run, append one entry to the <a href="../index.html#devlog">devlog</a>. Also append one if the run stops early.</p>
+</main>
+</body>
+</html>

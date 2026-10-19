@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pj-address-review</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<p class="back"><a href="../index.html">← flow</a></p>
+<h1>pj-address-review</h1>
+<p class="lead">Works through the open review threads on a PR. Threads from pj-review and from humans.</p>
+
+<table>
+  <tr><th>Input</th><td><code>#pr</code></td></tr>
+  <tr><th>Requires</th><td>An open PR with unresolved threads.</td></tr>
+  <tr><th>Result</th><td>Fixes pushed. Each thread has a reply. One summary comment on the PR.</td></tr>
+</table>
+
+<h2>Steps</h2>
+<ol>
+  <li>Work in the worktree of the PR branch: <code>.worktrees/&lt;n&gt;</code>, or <code>.worktrees/pr-&lt;n&gt;</code> if the PR has no issue. If it does not exist, create it and install the dependencies.</li>
+  <li>List the unresolved threads.</li>
+  <li>Sort each thread: <em>fix</em>, <em>decline</em>, or <em>ask</em>.</li>
+  <li>Make the fixes. Use one commit for each thread when possible. Update <code>docs/</code> and the evidence if the fix changes them.</li>
+  <li>Run build, lint, and tests.</li>
+  <li>Push to the PR branch.</li>
+  <li>Reply to each thread.</li>
+  <li>Post a summary comment. Suggest the next round of <a href="pj-review.html"><code>pj-review</code></a>.</li>
+</ol>
+
+<h2>Fix, decline, or ask</h2>
+<table>
+  <tr><th>Action</th><th>When</th><th>Reply</th></tr>
+  <tr><td>Fix</td><td>The finding is correct.</td><td><code>Fixed in &lt;sha&gt;.</code></td></tr>
+  <tr><td>Decline</td><td>The finding is wrong, or it conflicts with the spec. A non-blocking finding can also be declined if the cost is higher than the value.</td><td><code>Declined: &lt;reason&gt;.</code> For a blocking finding, give proof: code, test, or spec.</td></tr>
+  <tr><td>Ask</td><td>The thread is not clear, or a human comment is a preference with no clear right answer.</td><td>The question.</td></tr>
+</table>
+
+<h2>Rules</h2>
+<ul>
+  <li>Do not resolve threads. The reviewer resolves them. <code>pj-review</code> resolves its own threads when it verifies the fix.</li>
+  <li>Treat a human comment as blocking, unless the human marks it as optional.</li>
+  <li>Out of scope: decline, and suggest a follow-up issue in the reply.</li>
+  <li>A fix that changes an acceptance criterion: comment on the issue and stop. A human decides.</li>
+  <li>Push only to <code>pj/*</code> branches. On other branches, commit in the worktree, do not push, and tell the user.</li>
+</ul>
+
+<h2>Summary comment</h2>
+<pre>pj-address-review after round 1
+
+Fixed 4 · Declined 1 · Asked 1
+Build ✓  Lint ✓  Tests ✓
+
+Next: run pj-review for round 2.</pre>
+
+<h2>Related</h2>
+<ul>
+  <li><a href="pj-review.html"><code>pj-review</code></a> makes the threads and checks the fixes in the next round.</li>
+</ul>
+
+<h2>Devlog</h2>
+<p>At the end of the run, append one entry to the <a href="../index.html#devlog">devlog</a>. Also append one if the run stops early.</p>
+</main>
+</body>
+</html>

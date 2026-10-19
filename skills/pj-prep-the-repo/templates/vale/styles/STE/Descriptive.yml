@@ -1,0 +1,6 @@
+extends: occurrence
+message: "Descriptive sentence: max 25 words."
+scope: sentence
+level: error
+max: 25
+token: \b(\w+)\b
