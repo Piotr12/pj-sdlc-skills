@@ -1,8 +1,10 @@
 {
   "name": "pj-sdlc-skills",
   "version": "0.1.0",
-  "description": "SDLC skills for AI coding agents: spec, decompose, implement, review, on GitHub.",
-  "author": { "name": "Piotr12" },
+  "description": "Prepares a GitHub repo for the pj SDLC skills: labels, attachments branch, rulesets, AGENTS.md rules, and a guard hook. The other pj skills are planned.",
+  "author": {
+    "name": "Piotr12"
+  },
   "repository": "https://github.com/Piotr12/pj-sdlc-skills",
   "license": "MIT"
 }

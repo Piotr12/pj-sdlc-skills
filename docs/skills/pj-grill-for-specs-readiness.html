@@ -15,27 +15,28 @@
 <table>
   <tr><th>Input</th><td><code>#issue</code></td></tr>
   <tr><th>Requires</th><td>An open issue with no linked PR.</td></tr>
-  <tr><th>Result</th><td>The <code>spec-ready</code> label and the spec on the <code>attachments</code> branch, or the <code>needs-input</code> label and questions.</td></tr>
+  <tr><th>Result</th><td>The <code>spec-ready</code> label and the signed-off spec on the <code>attachments</code> branch, or the <code>needs-input</code> label with questions or a sign-off question.</td></tr>
 </table>
 
 <h2>Steps</h2>
 <ol>
-  <li>Read the issue, its comments, and its attachments.</li>
+  <li>Read the issue, its comments, and its attachments. Use answers from trusted users only. See <a href="../index.html#trust">Trust</a>.</li>
   <li>Update the spec section in the issue body with the new answers.</li>
   <li>Check the spec against the Definition of Ready.</li>
-  <li>If a check fails: post the questions in one comment, set <code>needs-input</code>, and remove <code>spec-ready</code>.</li>
+  <li>If a check fails: post the questions in one comment with a <code>questions</code> <a href="../index.html#markers">marker</a>. Assign the issue to its owner and @mention the owner. See <a href="../index.html#waits">Human wait points</a>. Set <code>needs-input</code> and remove <code>spec-ready</code>.</li>
   <li>If all checks pass:
     <ol type="a">
-      <li>Commit the spec to <code>attachments</code> at <code>issues/&lt;n&gt;/spec.md</code>.</li>
-      <li>Comment on the issue with a link to the spec.</li>
-      <li>Set <code>spec-ready</code> and remove <code>needs-input</code>.</li>
+      <li>Hash the spec block with SHA-256.</li>
+      <li>If no trusted human signed off this hash: ask one sign-off question with a <code>sign-off</code> marker that holds the hash. Assign and @mention the owner. Set <code>needs-input</code>, and stop.</li>
+      <li>If a trusted human answered <em>yes</em> for this hash: commit the spec to <code>attachments</code> at <code>issues/&lt;n&gt;/spec.md</code>, with the hash in its first line.</li>
+      <li>Comment with a <code>ready</code> marker and a link to the spec. Set <code>spec-ready</code> and remove <code>needs-input</code>.</li>
     </ol>
   </li>
 </ol>
 
 <h2>Rules</h2>
 <ul>
-  <li>This is the only skill that sets <code>needs-input</code>.</li>
+  <li>This is the only skill that sets <code>needs-input</code> and <code>spec-ready</code>. It sets <code>spec-ready</code> only after a trusted sign-off. See <a href="../index.html#spec-source">Spec source and sign-off</a>.</li>
   <li>After a human answers, run the skill again.</li>
   <li>The spec lives in the issue body between <code>&lt;!-- pj:spec:start --&gt;</code> and <code>&lt;!-- pj:spec:end --&gt;</code>. Do not change text outside the markers.</li>
   <li>The human can answer any question with "agent decides". The agent then makes the decision and records it under <em>Agent decisions</em>. Never mix agent decisions with human decisions.</li>

@@ -1,25 +1,37 @@
 # pj SDLC skills
 
-Agent skills that take a GitHub issue from spec to a merged PR.
-The agent works in worktrees and PRs.
-A human answers the questions, picks the mockups, and merges.
+A design for agent skills that take a GitHub issue from spec to a merged PR, and its first skill.
+Version 0.1.0 ships one skill: `pj-prep-the-repo`. It prepares a repo for the flow.
+The other skills are designs in `docs/`. They are not built yet.
 
-Version 0.1.0. One skill is ready. The other skills are designs.
+## Shipped
 
-## Skills
+| Skill | Does |
+|---|---|
+| `pj-prep-the-repo` | Sets up labels, the `attachments` branch, rulesets, `AGENTS.md`, and configs through a PR. |
 
-| Skill | Status | Does |
-|---|---|---|
-| `pj-prep-the-repo` | Ready | Sets up labels, the `attachments` branch, `AGENTS.md`, and configs through a PR. |
-| `pj-grill-for-specs-readiness` | Planned | Checks an issue against the Definition of Ready and builds the spec. |
-| `pj-mock-it-up` | Planned | Makes mockup variants for a UI change. |
-| `pj-decompose` | Planned | Splits an issue that is too big into child issues. |
-| `pj-repro` | Planned | Reproduces a bug with a failing test before the fix. |
-| `pj-implement` | Planned | Implements a `spec-ready` issue and opens a PR. |
-| `pj-review` | Planned | Reviews a PR adversarially. |
-| `pj-address-review` | Planned | Works through the open review threads on a PR. |
-| `pj-next-round` | Planned | Suggests the next actions. It changes nothing. |
-| `pj-healthcheck` | Planned | Checks the repo setup, `attachments`, and `docs/`. It changes nothing. |
+The Claude Code plugin also adds a guard hook. It blocks pushes to `main`, force-pushes, merges, and issue closes by the agent.
+
+## Roadmap
+
+| Skill | Does |
+|---|---|
+| `pj-grill-for-specs-readiness` | Checks an issue against the Definition of Ready and builds the spec. |
+| `pj-implement` | Implements a `spec-ready` issue and opens a PR. |
+| `pj-review` | Reviews a PR adversarially. |
+| `pj-address-review` | Works through the open review threads on a PR. |
+| `pj-next-round` | Suggests the next actions. It changes nothing. |
+| `pj-mock-it-up` | Makes mockup variants for a UI change. |
+| `pj-decompose` | Splits an issue that is too big into child issues. |
+| `pj-repro` | Reproduces a bug with a failing test before the fix. |
+| `pj-healthcheck` | Checks the repo setup, `attachments`, and `docs/`. It changes nothing. |
+
+## Requirements
+
+- A GitHub repo with `main` as the default branch.
+- `gh`, logged in, and git 2.42 or later. Also install `gitleaks`: it scans attachments for secrets.
+- Bash 3.2 or later. The scripts run on macOS and Linux.
+- The rules block targets Web (TypeScript) and Flutter projects.
 
 ## Install
 
@@ -44,6 +56,8 @@ Manual: copy `skills/pj-*` into the skills folder of your agent.
 2. Open the target repo. It must have a GitHub remote.
 3. Ask the agent to prepare the repo for the pj skills.
 4. Review and merge the PR that the agent opens.
+
+For a team, give the agent its own GitHub identity. See Identity in `docs/index.html`.
 
 ## Design
 

@@ -22,10 +22,10 @@
 <ol>
   <li>Check for <code>spec-ready</code>. If it is not there, stop and suggest <a href="pj-grill-for-specs-readiness.html"><code>pj-grill-for-specs-readiness</code></a>.</li>
   <li>If the issue has children from <a href="pj-decompose.html"><code>pj-decompose</code></a>, stop. Implement the children.</li>
-  <li>Read the spec from <code>attachments</code> at <code>issues/&lt;n&gt;/spec.md</code>.</li>
+  <li>Read the spec from <code>attachments</code> at <code>issues/&lt;n&gt;/spec.md</code>. Hash the spec block in the issue body. If the hash differs from the snapshot, stop and suggest grill.</li>
   <li>Assess the size of the bite. If it is too big, recommend <a href="pj-decompose.html"><code>pj-decompose</code></a> and stop. The user can override this.</li>
-  <li>Work in the worktree <code>.worktrees/&lt;n&gt;</code> on the branch <code>pj/&lt;n&gt;-&lt;slug&gt;</code>. If it exists, continue in it. <a href="pj-repro.html"><code>pj-repro</code></a> can create it first. If not, create it and install the dependencies.</li>
-  <li>Open a draft PR with <code>Closes #&lt;n&gt;</code>. It claims the issue. If the branch has no commits yet, push an empty commit first. If another open PR already closes the issue, stop.</li>
+  <li>Claim the issue: assign it to yourself, and work on the branch <code>pj/&lt;n&gt;</code> in <code>.worktrees/&lt;n&gt;</code>. See <a href="../index.html#claim">Claim</a>. If the worktree exists and the claim is yours, continue in it. <a href="pj-repro.html"><code>pj-repro</code></a> can create it first.</li>
+  <li>Open a draft PR with <code>Closes #&lt;n&gt;</code> and a <code>claim</code> marker. If the branch has no commits yet, push an empty commit first. If another open PR already closes the issue, stop.</li>
   <li>Write the design to <code>attachments</code> at <code>issues/&lt;n&gt;/design.md</code>.</li>
   <li>Get an adversarial review of the design. Fix the blocking findings.</li>
   <li>Record each decision that is hard to reverse as an ADR in <code>docs/adr/</code>.</li>

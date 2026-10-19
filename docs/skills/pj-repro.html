@@ -20,11 +20,11 @@
 
 <h2>Steps</h2>
 <ol>
-  <li>Read the issue, its comments, and its attachments.</li>
-  <li>Create the worktree <code>.worktrees/&lt;n&gt;</code> with the branch <code>pj/&lt;n&gt;-&lt;slug&gt;</code>. Install the dependencies.</li>
+  <li>Read the issue, its comments, and its attachments. See <a href="../index.html#trust">Trust</a>.</li>
+  <li>Claim the issue, and create the worktree <code>.worktrees/&lt;n&gt;</code> on the branch <code>pj/&lt;n&gt;</code>. See <a href="../index.html#claim">Claim</a>. Install the dependencies.</li>
   <li>Write a test that fails for the reported reason.</li>
   <li>Run the test. Make sure that it fails for the correct reason, not for a setup error.</li>
-  <li>If the bug does not reproduce: comment on the issue with what you tried, and stop. Do not change the labels.</li>
+  <li>If the bug does not reproduce: comment on the issue with what you tried and a <code>stopped</code> marker, and stop. Do not change the labels.</li>
   <li>Commit the test as its own commit.</li>
   <li>Save the test output to <code>attachments</code> at <code>issues/&lt;n&gt;/evidence/</code>.</li>
   <li>Continue with <a href="pj-implement.html"><code>pj-implement</code></a> in the same worktree.</li>

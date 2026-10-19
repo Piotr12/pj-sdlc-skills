@@ -26,8 +26,19 @@ Each script prints one JSON line.
 |---|---|---|
 | 0 | Done | Continue. |
 | 3 | The state needs a human decision | Stop. Show `reason` and `detail`. Ask the user. |
-| 4 | `origin` has no `main` | Stop. Tell the user to push a first commit to `main`. |
+| 4 | `origin` has no commits | Stop. Tell the user to push a first commit to `main`. |
 | Other | Error | Stop. Show the output. |
+
+| `reason` (exit 3) | Ask the user to |
+|---|---|
+| `default-branch-not-main` | Rename the default branch to `main` on GitHub, or stop. pj supports `main` only. |
+| `shallow-clone` | Run `git fetch --unshallow origin`. |
+| `git-too-old` | Install git 2.42 or later. |
+| `attachments-not-orphan` | Rename or delete the existing `attachments` branch. |
+| `path-in-use`, `worktree-wrong-branch`, `two-prep-branches`, `dirty-leftover` | Look at the named worktree or branch, then clean it up. |
+| `sensitive-files` | Remove the listed files from the change, or add them to `.gitignore`. |
+| `rulesets-unavailable`, `ruleset-create-failed` | Create the rulesets by hand, or continue without them. |
+| `branch-diverged` | Resolve the prep branch by hand. |
 
 ## Steps
 
@@ -36,14 +47,20 @@ Each script prints one JSON line.
 | Tool | Needed by | Check | Install |
 |---|---|---|---|
 | `gh`, logged in | All skills | `gh auth status` | `brew install gh`, then `gh auth login` |
-| `git` 2.42 or later | All skills (worktrees) | `git --version` | `brew install git` |
+| `git` 2.42 or later | All skills (worktrees) | `git --version` | `brew install git`, or the package manager |
+| `gitleaks` (recommended) | Secret scan before each write to `attachments` | `gitleaks version` | `brew install gitleaks`, or a release binary |
 | Headless browser | pj-mock-it-up, UI evidence | 1. `npx --no-install playwright --version` 2. `command -v google-chrome chromium chromium-browser`, or the Chrome app on macOS | `npx playwright install --with-deps chromium` |
 | Stack tools | Build, lint, tests | The commands in the Project section | As the stack needs |
 | Enforcement tools | Build, lint, tests | See `<skill>/reference/enforcement.md` | See `<skill>/reference/enforcement.md` |
 
 Run `<skill>/scripts/prep.sh status` for git, gh, the remote, and the current state.
 Show one table with the result for each tool.
-If `gh` or `git` is missing, stop.
+Stop before step 2 in these cases. Show the reason.
+
+- `gh` or `git` is missing, or `gitOk` is false.
+- `mainOk` is false: the default branch of `origin` is not `main`.
+- `shallow` is true.
+
 For the other tools, continue and tell the user which skills cannot work.
 
 ### 2. Ignore the worktrees locally
@@ -51,10 +68,21 @@ For the other tools, continue and tell the user which skills cannot work.
 Run `<skill>/scripts/prep.sh exclude`.
 It adds `.worktrees/` to `.git/info/exclude`, so the main checkout stays clean before the PR merges.
 
-### 3. Create the labels
+### 3. Create the labels and the rulesets
 
 Run `<skill>/scripts/prep.sh labels`.
 It creates `needs-input` and `spec-ready` if they are missing. It does not change existing labels.
+
+Run `<skill>/scripts/prep.sh rulesets`. It lists the missing rulesets:
+
+| Ruleset | Branch | Rules |
+|---|---|---|
+| `pj-main` | `main` | PR required, review threads resolved, no force-push, no deletion |
+| `pj-attachments` | `attachments` | No force-push, no deletion |
+
+The rulesets make the Autonomy rules hold on the server, for agents and for humans.
+If one is missing, show this table and ask the user.
+If the user agrees, run `<skill>/scripts/prep.sh rulesets --apply`.
 
 ### 4. Create the attachments branch
 
@@ -136,7 +164,7 @@ Add the configs that the user accepts. Add their commands to the Project section
 
 ### 12. Open the PR
 
-Write the PR body to a temporary file. List each file that you added or changed, and why.
+Write the PR body to a temporary file outside `.worktrees/prep`. List each file that you added or changed, and why.
 Run `<skill>/scripts/prep.sh pr <body-file>`.
 It commits, pushes, and opens the PR or updates the open one. It then removes `.worktrees/prep`.
 If there are no file changes, it opens no PR.
@@ -163,5 +191,6 @@ Tell the user:
 
 - The result of the tool check.
 - What you created, and what existed.
+- The rulesets that exist, and the ones that the user declined.
 - The link to the PR.
 - The questions that are still open.

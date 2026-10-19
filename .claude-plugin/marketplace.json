@@ -4,13 +4,13 @@
     "name": "Piotr12"
   },
   "metadata": {
-    "description": "pj SDLC skills for AI coding agents."
+    "description": "pj SDLC skills for AI coding agents. One skill ships today."
   },
   "plugins": [
     {
       "name": "pj-sdlc-skills",
       "source": "./",
-      "description": "SDLC skills for AI coding agents: spec, decompose, implement, review, on GitHub."
+      "description": "Prepares a GitHub repo for the pj SDLC skills: labels, attachments branch, rulesets, AGENTS.md rules, and a guard hook. The other pj skills are planned."
     }
   ]
 }

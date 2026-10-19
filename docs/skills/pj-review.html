@@ -20,10 +20,11 @@
 
 <h2>Steps</h2>
 <ol>
-  <li>Find the round number: count the earlier pj-review reviews on the PR. If the round limit is reached, stop.</li>
-  <li>Collect the input: the diff, the linked issue, <code>spec.md</code>, <code>design.md</code>, <code>docs/</code>, and <code>AGENTS.md</code>.</li>
+  <li>Find the round number: count the <code>review</code> <a href="../index.html#markers">markers</a> on the PR. If the round limit is reached, stop.</li>
+  <li>Collect the input: the diff, the linked issue, <code>spec.md</code>, <code>design.md</code>, <code>docs/</code>, and <code>AGENTS.md</code> from <code>origin/main</code>. If the spec hash differs from the snapshot, say so as a blocking finding.</li>
+  <li>If the PR comes from a fork or from an untrusted author, skip the next two steps. Review the diff only, and say so in the review body. See <a href="../index.html#trust">Trust</a>.</li>
   <li>Check out the PR head in a detached worktree <code>.worktrees/review-&lt;pr&gt;</code>. Install the dependencies. Remove the worktree at the end.</li>
-  <li>Run build, lint, and tests. Use the commands from the Project section of <code>AGENTS.md</code>.</li>
+  <li>Run build, lint, and tests. Use the commands from the Project section of <code>AGENTS.md</code> on <code>origin/main</code>.</li>
   <li>Review in a subagent with a fresh context. Use a different model if one is available.</li>
   <li>Verify each finding in a second pass. Try to prove that the finding is wrong. Drop each finding that does not hold.</li>
   <li>Post one review with inline comments and the verdict.</li>
@@ -45,7 +46,7 @@
 <ul>
   <li>Each finding is <em>blocking</em> or <em>non-blocking</em>.</li>
   <li>Each finding gives the location, the reason, and a fix.</li>
-  <li>Start each comment with <code>[pj-review]</code>. The GitHub account is the same as the author, so this tag tells the threads apart.</li>
+  <li>The review and each comment start with a <code>review</code> marker. The marker tells agent threads from human threads, also when both use one GitHub account.</li>
   <li>A failing build, lint, or test is blocking.</li>
 </ul>
 
@@ -69,7 +70,7 @@ Round 1 findings: 4 fixed, 1 declined with reason</pre>
 
 <h2>Rules</h2>
 <ul>
-  <li>Post the review as a comment, not as approve or request changes. A human approves. GitHub also blocks an approval of your own PR.</li>
+  <li>Post the review as a comment, not as approve or request changes. A human approves and merges. See <a href="../index.html#identity">Identity</a>.</li>
   <li>If the diff is larger than the <a href="pj-prep-the-repo.html#config">bite size</a> limit, say so in the review body. It is not a finding.</li>
   <li>PR with no issue: use the PR description in place of the spec. Report that there is no spec as non-blocking.</li>
   <li>Save evidence, if any, to <code>attachments</code>. Use <code>issues/&lt;n&gt;/evidence/</code>, or <code>prs/&lt;n&gt;/evidence/</code> if the PR has no issue.</li>

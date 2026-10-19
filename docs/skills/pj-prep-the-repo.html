@@ -18,54 +18,15 @@
   <tr><th>Result</th><td>Labels and the <code>attachments</code> branch exist. A PR adds <code>AGENTS.md</code>, <code>CLAUDE.md</code>, and <code>.pj/config.json</code>.</td></tr>
 </table>
 
-<h2>Steps</h2>
-<p>The <a href="../../skills/pj-prep-the-repo/SKILL.md">SKILL.md</a> is the source of truth. This list is a summary with the same numbers.</p>
-<ol>
-  <li>Check the <a href="#tools">tools</a>. Report each missing tool with the install command. If <code>gh</code> or <code>git</code> is missing, stop.</li>
-  <li>Add <code>.worktrees/</code> to <code>.git/info/exclude</code>.</li>
-  <li>Create the labels <code>needs-input</code> and <code>spec-ready</code>. Skip a label that exists.</li>
-  <li>Create the orphan <code>attachments</code> branch and the worktree <code>.worktrees/attachments</code>. If the branch exists and is not an orphan, stop and ask.</li>
-  <li>Create the worktree <code>.worktrees/prep</code> with the branch <code>pj/prep-the-repo</code> from <code>main</code>. Make the file changes of steps 6 to 11 in it.</li>
-  <li>Ask the user for the <a href="#config">bite size and the timezone</a>. Write <code>.pj/config.json</code>.</li>
-  <li>Write the <a href="#agents-md">pj rules</a> into <code>AGENTS.md</code> between the markers.</li>
-  <li>Fill the Project section of <code>AGENTS.md</code>. Find the stack and commands in the repo. Ask if they are not clear.</li>
-  <li>Make sure that <code>CLAUDE.md</code> imports <code>@AGENTS.md</code>.</li>
-  <li>Add <code>.worktrees/</code> to <code>.gitignore</code>.</li>
-  <li>Handle an <a href="#existing">existing project</a>. Offer the <a href="#enforcement">enforcement</a> configs for the stack. Add the configs that the user accepts.</li>
-  <li>Open a PR. Agents do not push to <code>main</code>.</li>
-  <li>Run <a href="pj-healthcheck.html"><code>pj-healthcheck</code></a> and show the report.</li>
-  <li>Append one entry to the <a href="../index.html#devlog">devlog</a>. Also do it if the run stops early.</li>
-</ol>
-
-<h2 id="tools">Tools</h2>
-<p>Check each tool. Do not install. Report what is missing and how to install it.</p>
-<table>
-  <tr><th>Tool</th><th>Needed by</th><th>Check</th><th>Install</th></tr>
-  <tr><td><code>gh</code>, logged in</td><td>All skills</td><td><code>gh auth status</code></td><td><code>brew install gh</code>, <code>gh auth login</code></td></tr>
-  <tr><td><code>git</code> 2.42 or later</td><td>All skills (worktrees)</td><td><code>git --version</code></td><td><code>brew install git</code></td></tr>
-  <tr><td>Headless browser</td><td><code>pj-mock-it-up</code>, UI evidence</td><td>1. <code>npx --no-install playwright --version</code><br>2. System Chrome or Chromium</td><td><code>npx playwright install --with-deps chromium</code></td></tr>
-  <tr><td>Stack tools</td><td>Build, lint, tests</td><td>The commands in the Project section</td><td>As the stack needs</td></tr>
-  <tr><td>Enforcement tools</td><td>Build, lint, tests</td><td>See <a href="#enforcement">Enforcement</a></td><td>See <a href="#enforcement">Enforcement</a></td></tr>
-</table>
-
-<h2 id="enforcement">Enforcement</h2>
-<p>Tools that check the <code>AGENTS.md</code> rules. Prep offers the configs. The user decides which to add.</p>
-<table>
-  <tr><th>Rule</th><th>Web (TypeScript)</th><th>Flutter (Dart)</th></tr>
-  <tr><td>Writing (STE-inspired)</td><td colspan="2">Vale with pj STE rules (sentence length 20/25) and <code>Microsoft.Passive</code>. <code>markdownlint-cli2</code> for structure.</td></tr>
-  <tr><td>Mermaid</td><td colspan="2"><code>@mermaid-js/mermaid-cli</code> parses each diagram. <code>.pj/er_limit.py</code> checks max 9 entities.</td></tr>
-  <tr><td>Magic numbers</td><td><code>@typescript-eslint/no-magic-numbers</code></td><td><code>solid_lints</code>: <code>no_magic_number</code></td></tr>
-  <tr><td>Magic strings</td><td><code>sonarjs/no-duplicate-string</code></td><td>Review only</td></tr>
-  <tr><td>UI text in l10n</td><td><code>i18next/no-literal-string</code></td><td><code>hardcoded_strings_lint</code></td></tr>
-  <tr><td>Mutation tests</td><td>StrykerJS, incremental</td><td><code>mutation_test</code>, changed files only</td></tr>
-  <tr><td>Accessibility</td><td><code>@axe-core/playwright</code>, <code>jsx-a11y</code> for React</td><td><code>meetsGuideline</code>: tap target (Android, iOS), labels, contrast</td></tr>
-</table>
+<h2>Procedure</h2>
+<p>The procedure is <a href="../../skills/pj-prep-the-repo/SKILL.md">SKILL.md</a>. This page does not repeat it. In short, prep:</p>
 <ul>
-  <li>ASD-STE100 inspired the Vale rules. They are not a full STE check. pj has no affiliation with ASD.</li>
-  <li>Dart analyzer plugins run with <code>dart analyze</code>, not <code>flutter analyze</code>. They need Dart 3.10 or later.</li>
-  <li>Dart <code>mutation_test</code> changes text, not the syntax tree, and is slow. Run it only on changed files.</li>
-  <li>Do not use DCM. The free plan has no CI license.</li>
+  <li>Stops before any change if the default branch is not <code>main</code>, git is older than 2.42, or the clone is shallow.</li>
+  <li>Creates the labels and the orphan <code>attachments</code> branch, and offers the <code>pj-main</code> and <code>pj-attachments</code> rulesets.</li>
+  <li>Opens one PR with <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>.pj/config.json</code>, and the enforcement configs that the user accepts.</li>
+  <li>Runs its git and gh work through tested scripts in <code>scripts/</code>. A rerun after a crash is safe.</li>
 </ul>
+<p>In Claude Code, the pj plugin also installs a guard hook. It blocks the forbidden actions of the Autonomy rules in repos that have <code>.pj/config.json</code>.</p>
 
 <h2 id="config">Config</h2>
 <p><code>.pj/config.json</code> holds the settings of the skills for this repo.</p>
@@ -81,19 +42,6 @@
   <tr><td><code>large</code></td><td>9</td><td>1600</td></tr>
 </table>
 <p><a href="pj-implement.html#too-big"><code>pj-implement</code></a> and <a href="pj-decompose.html"><code>pj-decompose</code></a> read it. If the file is missing, use <code>medium</code>.</p>
-
-<h2 id="existing">Existing project</h2>
-<p>The repo can be old and can have content. Do not overwrite. Merge, or ask.</p>
-<table>
-  <tr><th>Found</th><th>Action</th></tr>
-  <tr><td><code>AGENTS.md</code></td><td>Keep the text. Add or replace only the pj rules block. If a rule in the text conflicts with a pj rule, show the conflict and ask.</td></tr>
-  <tr><td><code>CLAUDE.md</code> with content</td><td>Add <code>@AGENTS.md</code> at the top. Suggest that the user moves the content into <code>AGENTS.md</code>. Ask.</td></tr>
-  <tr><td>A label with the same name</td><td>Use it. Do not change its color or description.</td></tr>
-  <tr><td>A branch named <code>attachments</code> that is not an orphan</td><td>Stop. Ask the user.</td></tr>
-  <tr><td>No <code>docs/data-model.md</code>, but the code has persistence</td><td>Offer to make it from the code, in the same PR. Follow the size rules of the erDiagram.</td></tr>
-  <tr><td>Other content in <code>docs/</code></td><td>Keep it. <code>pj-healthcheck</code> reports drift.</td></tr>
-  <tr><td>Open issues and PRs</td><td>No action. Issues without a label are Fresh.</td></tr>
-</table>
 
 <h2 id="attachments-branch">Attachments branch</h2>
 <p>The <code>attachments</code> branch holds evidence. It is an orphan branch: it has no code and no history in common with <code>main</code>.</p>
