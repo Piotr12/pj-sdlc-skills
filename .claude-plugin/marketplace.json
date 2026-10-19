@@ -1,0 +1,16 @@
+{
+  "name": "pj-sdlc-skills",
+  "owner": {
+    "name": "Piotr12"
+  },
+  "metadata": {
+    "description": "pj SDLC skills for AI coding agents."
+  },
+  "plugins": [
+    {
+      "name": "pj-sdlc-skills",
+      "source": "./",
+      "description": "SDLC skills for AI coding agents: spec, decompose, implement, review, on GitHub."
+    }
+  ]
+}

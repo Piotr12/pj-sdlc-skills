@@ -39,6 +39,8 @@
 </head>
 <body>
 <main>
+<h1>pj SDLC skills</h1>
+<p class="lead">Version 0.1.0. Only <a href="skills/pj-prep-the-repo.html"><code>pj-prep-the-repo</code></a> is ready. The other skills are designs.</p>
 <div class="diagram">
 <svg viewBox="0 0 1300 510" role="img" aria-label="Issue state flow with skills">
   <defs>
@@ -146,7 +148,7 @@
   <tr><td><span class="dot" style="background:var(--fresh-bg);border-color:var(--fresh-st)"></span>Fresh</td><td>No label. No linked PR.</td></tr>
   <tr><td><span class="dot" style="background:var(--input-bg);border-color:var(--input-st)"></span><code>needs-input</code></td><td>Label. Only grill sets it. Grill asked questions, and a human must answer them.</td></tr>
   <tr><td><span class="dot" style="background:var(--ready-bg);border-color:var(--ready-st)"></span><code>spec-ready</code></td><td>Label. The issue meets the Definition of Ready.</td></tr>
-  <tr><td><span class="dot" style="background:var(--impl-bg);border-color:var(--impl-st)"></span>Implemented</td><td>A PR links the issue.</td></tr>
+  <tr><td><span class="dot" style="background:var(--impl-bg);border-color:var(--impl-st)"></span>Implemented</td><td>A PR that is ready for review links the issue. A draft PR means that the work is in progress. The issue then stays <code>spec-ready</code>.</td></tr>
   <tr><td><span class="dot" style="background:var(--done-bg);border-color:var(--done-st)"></span>Done</td><td>The issue is closed.</td></tr>
 </table>
 <p>An issue can have only one of the two labels. A skill that sets one label also removes the other.</p>
@@ -167,25 +169,25 @@
   <tr><td><code>.worktrees/&lt;n&gt;</code> on <code>pj/&lt;n&gt;-&lt;slug&gt;</code></td><td><a href="skills/pj-repro.html"><code>pj-repro</code></a>, <a href="skills/pj-implement.html"><code>pj-implement</code></a>, <a href="skills/pj-address-review.html"><code>pj-address-review</code></a></td><td>Until the PR is merged or closed</td></tr>
   <tr><td><code>.worktrees/pr-&lt;n&gt;</code> on the PR branch</td><td><code>pj-address-review</code> on a PR with no issue</td><td>Until the PR is merged or closed</td></tr>
   <tr><td><code>.worktrees/review-&lt;pr&gt;</code>, detached at the PR head</td><td><a href="skills/pj-review.html"><code>pj-review</code></a></td><td>One run</td></tr>
-  <tr><td><code>.worktrees/att-&lt;id&gt;</code>, detached at <code>attachments</code></td><td>Each skill that writes to <code>attachments</code></td><td>One run</td></tr>
+  <tr><td>A temporary folder, detached at <code>attachments</code></td><td><code>scripts/attach.sh</code>, for each skill that writes to <code>attachments</code></td><td>One write</td></tr>
   <tr><td><code>.worktrees/attachments</code> on <code>attachments</code></td><td>The human, to read files</td><td>Permanent</td></tr>
 </table>
 <ul>
   <li><code>.worktrees/</code> is in <code>.gitignore</code>.</li>
   <li>If the worktree exists, continue in it. If not, create it and install the dependencies.</li>
-  <li>Write to <code>attachments</code> from a detached worktree. Push with <code>git push origin HEAD:attachments</code>.</li>
+  <li>Write to <code>attachments</code> with <code>scripts/attach.sh</code>.</li>
   <li><a href="skills/pj-healthcheck.html"><code>pj-healthcheck</code></a> reports worktrees of merged or closed PRs.</li>
 </ul>
 
 <h2 id="devlog">Devlog</h2>
 <p>Agents write short notes for the human operator to <code>devlog/</code> on the <code>attachments</code> branch. Agents do not read it.</p>
 <ul>
-  <li>One file for each day: <code>devlog/yyyy-mm-dd-devlog.html</code>. The date is in Europe/Warsaw time.</li>
-  <li>Each skill run appends one entry at the end of the file. If the file does not exist, create it with the page header first.</li>
-  <li>Each entry has a timestamp in Europe/Warsaw time, the skill, the target, the outcome, and a few short notes with links.</li>
+  <li>One file for each entry: <code>devlog/yyyy-mm-dd/hhmmss-&lt;skill&gt;-&lt;id&gt;.html</code>. The date uses <code>timezone</code> from <a href="skills/pj-prep-the-repo.html#config"><code>.pj/config.json</code></a>. The default is UTC.</li>
+  <li>Each skill run writes one entry with <code>scripts/devlog.sh</code>.</li>
+  <li>Each entry has a timestamp in that timezone, the skill, the target, the outcome, and a few short notes with links.</li>
   <li>All skills write to it, except <a href="skills/pj-next-round.html"><code>pj-next-round</code></a>.</li>
-  <li>Parallel sessions append to the same file. The <code>union</code> merge driver joins the entries when a push needs a rebase.</li>
-  <li>To read it: <code>git -C .worktrees/attachments pull</code>, then open the file in a browser.</li>
+  <li>Parallel sessions write different files, so their pushes never conflict.</li>
+  <li>To read a day: run <code>scripts/devlog.sh view [yyyy-mm-dd]</code>. It builds one page and prints its path.</li>
 </ul>
 <pre>&lt;article&gt;
   &lt;h2&gt;21:43 · pj-implement #42 · PR opened&lt;/h2&gt;

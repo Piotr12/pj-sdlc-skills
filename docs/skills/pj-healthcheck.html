@@ -26,8 +26,7 @@
   <tr><td>Attachments branch</td><td>The branch is missing, or it shares history with <code>main</code>.</td><td>Run <code>pj-prep-the-repo</code>. Recreate the branch as an orphan.</td></tr>
   <tr><td>AGENTS.md</td><td>The file or the pj rules block is missing, or the block differs from the current pj rules.</td><td>Run <code>pj-prep-the-repo</code>.</td></tr>
   <tr><td>Config</td><td><code>.pj/config.json</code> is missing or has a value that is not valid.</td><td>Run <code>pj-prep-the-repo</code>.</td></tr>
-  <tr><td>Devlog</td><td><code>.gitattributes</code> on <code>attachments</code> has no <code>union</code> rule for the devlog.</td><td>Run <code>pj-prep-the-repo</code>.</td></tr>
-  <tr><td>Worktrees</td><td><code>.worktrees/</code> is not in <code>.gitignore</code>. A worktree for a merged or closed PR. A <code>review-</code> or <code>att-</code> worktree that a run left behind.</td><td>Run <code>pj-prep-the-repo</code>. <code>git worktree remove &lt;path&gt;</code>.</td></tr>
+  <tr><td>Worktrees</td><td><code>.worktrees/</code> is not in <code>.gitignore</code>. A worktree for a merged or closed PR. A <code>review-</code> worktree that a run left behind, or a stale entry in <code>git worktree list</code>.</td><td>Run <code>pj-prep-the-repo</code>. <code>git worktree remove &lt;path&gt;</code>, <code>git worktree prune</code>.</td></tr>
   <tr><td>CLAUDE.md</td><td>The file does not import <code>@AGENTS.md</code>.</td><td>Run <code>pj-prep-the-repo</code>.</td></tr>
 </table>
 

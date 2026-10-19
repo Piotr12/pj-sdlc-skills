@@ -32,9 +32,9 @@
 <table>
   <tr><th>Priority</th><th>State</th><th>Action</th></tr>
   <tr><td>1</td><td>PR with unresolved <code>[pj-review]</code> threads</td><td><a href="pj-address-review.html"><code>pj-address-review</code></a></td></tr>
-  <tr><td>2</td><td>PR with new commits after the last review, or with no review</td><td><a href="pj-review.html"><code>pj-review</code></a></td></tr>
+  <tr><td>2</td><td>PR, not a draft, with new commits after the last review, or with no review</td><td><a href="pj-review.html"><code>pj-review</code></a></td></tr>
   <tr><td>3</td><td><code>needs-input</code> with a human answer after the last grill</td><td><a href="pj-grill-for-specs-readiness.html"><code>pj-grill-for-specs-readiness</code></a></td></tr>
-  <tr><td>4</td><td><code>spec-ready</code>, no PR, no stop comment</td><td><a href="pj-implement.html"><code>pj-implement</code></a>, <a href="pj-repro.html"><code>pj-repro</code></a> for a bug, <a href="pj-decompose.html"><code>pj-decompose</code></a> if implement said too big</td></tr>
+  <tr><td>4</td><td><code>spec-ready</code>, no open PR, no stop comment</td><td><a href="pj-implement.html"><code>pj-implement</code></a>, <a href="pj-repro.html"><code>pj-repro</code></a> for a bug, <a href="pj-decompose.html"><code>pj-decompose</code></a> if implement said too big</td></tr>
   <tr><td>5</td><td>Fresh</td><td><code>pj-grill-for-specs-readiness</code>, or <a href="pj-mock-it-up.html"><code>pj-mock-it-up</code></a> first for a UI change</td></tr>
 </table>
 <p>Finish work before you start new work. In each priority, older items go first. Skip an issue with an open <code>Depends on #x</code>.</p>
@@ -57,7 +57,7 @@
 </ul>
 
 <h2>Report</h2>
-<pre>pj-next-round · 2026-10-19 21:40 Europe/Warsaw
+<pre>pj-next-round · 2026-10-19 19:40 UTC
 
 #  Group  Command                              Why
 1  A      /pj-address-review 51                3 open [pj-review] threads

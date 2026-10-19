@@ -1,6 +1,9 @@
 ---
 name: pj-prep-the-repo
 description: Prepare a new or existing GitHub repo for the pj SDLC skills. Creates the labels and the attachments branch, and opens a PR that adds the AGENTS.md rules, CLAUDE.md, .pj/config.json, and optional enforcement configs. Use when the user asks to set up, initialize, or prepare a repo for the pj skills, or to refresh the pj rules. Safe to run again.
+license: MIT
+metadata:
+  version: "0.1.0"
 ---
 
 # pj-prep-the-repo
@@ -9,13 +12,22 @@ Prepare the current repo for the pj skills. The repo can be new or old.
 
 ## Rules
 
-- Do not push to the default branch. Make all file changes in a PR.
+- Do not push to `main`. Make all file changes in a PR.
 - Do not overwrite. Merge, or ask the user.
 - Do not install tools. Report what is missing and how to install it.
-- Paths to `templates/` and `reference/` are relative to the folder of this skill.
+- `<skill>` is the folder of this skill. Run all commands from the root of the repo.
 
-In the commands, `<default>` is the default branch:
-`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`.
+## Scripts
+
+`<skill>/scripts/` does the git and gh work. Each script checks the state first, so a rerun after a crash is safe.
+Each script prints one JSON line.
+
+| Exit | Meaning | Action |
+|---|---|---|
+| 0 | Done | Continue. |
+| 3 | The state needs a human decision | Stop. Show `reason` and `detail`. Ask the user. |
+| 4 | `origin` has no `main` | Stop. Tell the user to push a first commit to `main`. |
+| Other | Error | Stop. Show the output. |
 
 ## Steps
 
@@ -27,59 +39,40 @@ In the commands, `<default>` is the default branch:
 | `git` 2.42 or later | All skills (worktrees) | `git --version` | `brew install git` |
 | Headless browser | pj-mock-it-up, UI evidence | 1. `npx --no-install playwright --version` 2. `command -v google-chrome chromium chromium-browser`, or the Chrome app on macOS | `npx playwright install --with-deps chromium` |
 | Stack tools | Build, lint, tests | The commands in the Project section | As the stack needs |
-| Enforcement tools | Build, lint, tests | See `reference/enforcement.md` | See `reference/enforcement.md` |
+| Enforcement tools | Build, lint, tests | See `<skill>/reference/enforcement.md` | See `<skill>/reference/enforcement.md` |
 
+Run `<skill>/scripts/prep.sh status` for git, gh, the remote, and the current state.
 Show one table with the result for each tool.
 If `gh` or `git` is missing, stop.
 For the other tools, continue and tell the user which skills cannot work.
 
 ### 2. Ignore the worktrees locally
 
-Add `.worktrees/` to `.git/info/exclude`.
-The main checkout then stays clean before the PR is merged.
+Run `<skill>/scripts/prep.sh exclude`.
+It adds `.worktrees/` to `.git/info/exclude`, so the main checkout stays clean before the PR merges.
 
 ### 3. Create the labels
 
-Run `gh label list`. Create each label that is missing:
-
-```sh
-gh label create needs-input --color FBCA04 --description "pj: waiting for a human answer"
-gh label create spec-ready --color 0E8A16 --description "pj: meets the Definition of Ready"
-```
-
-If a label exists, use it. Do not change its color or description.
+Run `<skill>/scripts/prep.sh labels`.
+It creates `needs-input` and `spec-ready` if they are missing. It does not change existing labels.
 
 ### 4. Create the attachments branch
 
-Run `git fetch origin`.
+Run `<skill>/scripts/prep.sh attachments`.
+It creates the orphan `attachments` branch and the worktree `.worktrees/attachments`, or reuses them.
+If `attachments` shares history with `main`, it exits with 3.
 
-- **The branch exists.** Run `git merge-base origin/<default> origin/attachments`.
-  If it prints a commit, the branch is not an orphan. Stop and ask the user.
-  If `.worktrees/attachments` does not exist, run `git worktree add .worktrees/attachments attachments`.
-- **The branch does not exist.** Create it:
-
-```sh
-git worktree add --orphan -b attachments .worktrees/attachments
-cp templates/gitattributes .worktrees/attachments/.gitattributes
-git -C .worktrees/attachments add .gitattributes
-git -C .worktrees/attachments commit -m "chore: create attachments branch"
-git -C .worktrees/attachments push -u origin attachments
-```
-
-`.worktrees/attachments` is for the human, to read files. Skills write from detached worktrees.
+`.worktrees/attachments` is for the human, to read files. Skills write with `<skill>/scripts/attach.sh`.
 
 ### 5. Create the work worktree
 
-```sh
-git worktree add -b pj/prep-the-repo .worktrees/prep origin/<default>
-```
-
-If the branch exists, use `git worktree add .worktrees/prep pj/prep-the-repo`.
+Run `<skill>/scripts/prep.sh worktree`.
+It creates `.worktrees/prep` on a `pj/prep-the-repo` branch, or reuses the branch of an open prep PR.
 Make all file changes of steps 6 to 11 in `.worktrees/prep`.
 
 ### 6. Write the config
 
-Ask the user for the bite size. Show this table:
+Ask the user for the bite size and the timezone. Show this table for the bite size:
 
 | `biteSize` | Max acceptance criteria | Max diff lines |
 |---|---|---|
@@ -87,12 +80,15 @@ Ask the user for the bite size. Show this table:
 | `medium` | 8 | 800 |
 | `large` | 9 | 1600 |
 
-If `.pj/config.json` exists, show its value and ask if the user wants to keep it.
-Write `.pj/config.json` from `templates/config.json`.
+`timezone` is an IANA name, for example `Europe/Berlin`. The default is `UTC`.
+The devlog and the reports use it.
+
+If `.pj/config.json` exists, show its values and ask if the user wants to keep them.
+Write `.pj/config.json` from `<skill>/templates/config.json`.
 
 ### 7. Write AGENTS.md
 
-The pj rules block is `templates/AGENTS.rules.md`, with its markers.
+The pj rules block is `<skill>/templates/AGENTS.rules.md`, with its markers.
 
 | Found | Action |
 |---|---|
@@ -129,27 +125,21 @@ Add `.worktrees/` to `.gitignore` if it is not there.
 
 ### 11. Handle an existing project
 
-- If the code has persistence and `docs/data-model.md` does not exist:
-  offer to make it from the code.
-  Use a Mermaid erDiagram with max 9 entities in each diagram.
-  For a larger model, add sub-diagrams and one overview diagram.
+- If the code has persistence and `docs/data-model.md` does not exist, offer to make it from the code.
+- Use a Mermaid erDiagram with max 9 entities in each diagram.
+- For a larger model, add sub-diagrams and one overview diagram.
 - Keep all other content in `docs/`. pj-healthcheck reports drift.
 - Do not change open issues or PRs. Issues without a label are Fresh.
 
-Then offer the enforcement configs for the stack. Use `reference/enforcement.md`.
+Then offer the enforcement configs for the stack. Use `<skill>/reference/enforcement.md`.
 Add the configs that the user accepts. Add their commands to the Project section.
 
 ### 12. Open the PR
 
-```sh
-git -C .worktrees/prep add -A
-git -C .worktrees/prep commit -m "chore: prepare repo for pj skills"
-git -C .worktrees/prep push -u origin pj/prep-the-repo
-gh pr create --head pj/prep-the-repo --base <default> --title "chore: prepare repo for pj skills" --body "<summary>"
-```
-
-In the body, list each file that you added or changed, and why.
-If there are no file changes, do not open a PR.
+Write the PR body to a temporary file. List each file that you added or changed, and why.
+Run `<skill>/scripts/prep.sh pr <body-file>`.
+It commits, pushes, and opens the PR or updates the open one. It then removes `.worktrees/prep`.
+If there are no file changes, it opens no PR.
 
 ### 13. Check the result
 
@@ -158,46 +148,14 @@ If the pj-healthcheck skill is available, run it and show the report.
 ### 14. Write the devlog
 
 Do this at the end of each run. Also do it if the run stops early.
+Use 2 to 5 short notes. Add links to the PR and the issues.
 
 ```sh
-id=$(date +%s)
-git fetch origin attachments
-git worktree add --detach .worktrees/att-$id origin/attachments
-day=$(TZ=Europe/Warsaw date +%F)
-time=$(TZ=Europe/Warsaw date +%H:%M)
-file=.worktrees/att-$id/devlog/$day-devlog.html
+<skill>/scripts/devlog.sh --tz <timezone> pj-prep-the-repo <repo> <outcome> "<note>" "<note>"
 ```
 
-If `$file` does not exist, create it with this header:
-
-```html
-<!doctype html><meta charset="utf-8"><title>devlog DAY</title>
-<style>body{font:15px/1.5 system-ui,sans-serif;max-width:900px;margin:24px auto;padding:0 16px}article{border-top:1px solid #ccc;padding:8px 0}h2{font-size:15px;margin:0}</style>
-<h1>devlog DAY</h1>
-```
-
-Append one entry. Use 2 to 5 short notes. Add links to the PR and the issues.
-
-```html
-<article>
-  <h2>TIME · pj-prep-the-repo · OUTCOME</h2>
-  <ul>
-    <li>…</li>
-  </ul>
-</article>
-```
-
-Commit and push. If the push fails, rebase and push again. The union merge driver joins the entries.
-
-```sh
-git -C .worktrees/att-$id add devlog
-git -C .worktrees/att-$id commit -m "chore(devlog): pj-prep-the-repo"
-git -C .worktrees/att-$id push origin HEAD:attachments \
-  || { git -C .worktrees/att-$id fetch origin attachments \
-       && git -C .worktrees/att-$id rebase origin/attachments \
-       && git -C .worktrees/att-$id push origin HEAD:attachments; }
-git worktree remove .worktrees/att-$id
-```
+`<timezone>` is the value from step 6. If the run stopped before step 6, leave out `--tz`.
+If the script cannot write to `attachments`, it prints the entry. Put it in the report.
 
 ## Report
 

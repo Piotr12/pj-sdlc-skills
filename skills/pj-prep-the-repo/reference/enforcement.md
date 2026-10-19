@@ -5,13 +5,13 @@ After you add a tool, add its command to the Project section of `AGENTS.md`.
 
 ## All stacks
 
-### Writing (ASD-STE100)
+### Writing (STE-inspired)
 
-The STE rules are an approximation. No maintained STE package for Vale exists.
+ASD-STE100 inspired these rules. They are not a full STE check. pj has no affiliation with ASD.
 
-1. Copy `templates/vale/.vale.ini` to `.vale.ini`.
-2. Copy `templates/vale/styles/STE/` to `.vale/styles/STE/`.
-3. Copy `templates/markdownlint.jsonc` to `.markdownlint.jsonc`.
+1. Copy `<skill>/templates/vale/.vale.ini` to `.vale.ini`.
+2. Copy `<skill>/templates/vale/styles/STE/` to `.vale/styles/STE/`.
+3. Copy `<skill>/templates/markdownlint.jsonc` to `.markdownlint.jsonc`.
 
 | Tool | Install | Command |
 |---|---|---|
@@ -20,7 +20,7 @@ The STE rules are an approximation. No maintained STE package for Vale exists.
 
 ### Mermaid
 
-1. Copy `templates/er_limit.py` to `.pj/er_limit.py`.
+1. Copy `<skill>/templates/er_limit.py` to `.pj/er_limit.py`.
 
 | Check | Command |
 |---|---|
