@@ -1,0 +1,332 @@
+fresh repo, full run, then a second run
+  ok   status ok
+  ok   exclude added
+  ok   exclude second run
+  ok   labels created
+  ok   labels second run: none
+  ok   attachments created
+  ok   attachments on origin
+  ok   attachments second run
+  ok   prep worktree created
+  ok   PR created
+  ok   prep worktree removed
+  ok   rerun reuses open PR
+  ok   rerun updates, no 2nd PR
+previous prep PR merged
+  ok   new branch after merged PR
+  ok   no changes: no PR
+crash: worktree created, no PR yet
+  ok   resumes leftover branch
+  ok   then opens the PR
+crash: orphan worktree added, no commit
+  ok   recovers unborn branch
+  ok   attachments on origin
+crash: committed, not pushed
+  ok   pushes the local branch
+attachments shares history with main
+  ok   stops with exit 3
+  ok   attach refuses
+empty origin
+  ok   stops with exit 4
+  ok   attachments also exit 4
+  ok   nothing pushed
+devlog
+  ok   no attachments: entry printed, exit 0
+  ok   entry pushed
+  ok   entry dated in its timezone
+  ok   second clone pushes
+  ok   6 parallel writes pushed
+  ok   a rejected push retried
+  ok   view shows all entries
+  ok   view is valid nesting
+  ok   config timezone default
+default branch is not main: stop before any change
+  ok   status reports master
+  ok   labels exit 3
+  ok   no labels created
+  ok   attachments exit 3
+  ok   no attachments pushed
+shallow and single-branch clones
+  ok   shallow clone: exit 3
+  ok   single-branch clone writes
+fork PRs, secrets in the PR, body file
+  ok   fork PR is ignored
+  ok   .env refused, exit 3
+  ok   nothing pushed
+  ok   body file in worktree refused
+  ok   then the PR opens
+rulesets
+  ok   both missing
+  ok   both created
+  ok   both present
+attachments safety
+  ok   repo hooks do not block attachments
+  ok   workflow destination refused
+  ok   destination outside issues/prs/devlog refused
+  ok   symlink source refused
+  ok   no-scan warning shown
+  ok   no attribute break-out
+  ok   no script tag
+  ok   view page blocks scripts
+  ok   unexpected failure still prints JSON
+guard hook
+  ok   guard 2: git push --force origin pj/1
+  ok   guard 2: git push -f
+  ok   guard 2: git push origin +pj/1
+  ok   guard 2: git push origin main
+  ok   guard 2: git push origin HEAD:main
+  ok   guard 2: git push origin --delete pj/1
+  ok   guard 2: git push origin :pj/1
+  ok   guard 2: gh pr merge 3 --squash
+  ok   guard 2: gh issue close 4
+  ok   guard 2: gh api -X DELETE repos/o/r/git/refs/heads/x
+  ok   guard 2: gh secret set TOKEN
+  ok   guard 2: echo x > .github/workflows/ci.yml
+  ok   guard 0: git push -u origin pj/42
+  ok   guard 0: git push origin HEAD:attachments
+  ok   guard 0: git push origin pj/main-fix
+  ok   guard 2: gh pr create --draft
+  ok   guard 2: gh pr ready 3
+  ok   guard 2: gh issue comment 4 -b x
+  ok   guard 2: gh pr edit 3 --body-file f
+  ok   guard 2: gh api graphql -f query=mutation{}
+  ok   guard 2: gh label create x
+  ok   guard 2: gh api -XPATCH repos/o/r/issues/4
+  ok   guard 2: cd x && gh issue edit 4 --add-label spec-ready
+  ok   guard 2: /opt/homebrew/bin/gh pr comment 3 -b x
+  ok   guard 0: skills/pj-prep-the-repo/scripts/comment.sh issue 4 /tmp/b
+  ok   guard 0: gh issue view 4
+  ok   guard 0: gh pr list --json number
+  ok   guard 0: gh api repos/o/r/pulls/3/comments
+  ok   guard 0: gh auth status
+  ok   guard 0: echo high issue comment
+  ok   guard 0: git status
+  ok   guard 2: gh pr review 3 --approve
+  ok   guard 2: gh pr review 3 -r -b x
+  ok   guard 2: gh pr review 3 --comment -b x
+  ok   guard 0: .pj/scripts/comment.sh issue 4 /tmp/b
+  ok   guard 2: fj pr merge 3
+  ok   guard 2: fj issue close 4
+  ok   guard 2: fj issue comment 4 hello
+  ok   guard 2: cd x && fj pr edit 3 --title y
+  ok   guard 2: fj repo delete o/r
+  ok   guard 2: curl -X DELETE https://forge.test/api/v1/repos/o/r/branches/x
+  ok   guard 2: curl -XPOST https://forge.test/api/v1/repos/o/r/pulls/3/merge
+  ok   guard 2: curl -X POST -d @f https://forge.test/api/v1/repos/o/r/branch_protections
+  ok   guard 2: curl -sS -d @b.json https://forge.test/api/v1/repos/o/r/issues/4/comments
+  ok   guard 2: curl -X PATCH https://forge.test/api/v1/repos/o/r/issues/4
+  ok   guard 0: curl -sS https://forge.test/api/v1/repos/o/r/issues/4
+  ok   guard 0: fj issue view 4
+  ok   guard 0: fj auth add-key codeberg.org
+  ok   guard 0: echo .forgejo/workflows/ci.yml
+  ok   guard 2: rm .forgejo/workflows/ci.yml
+  ok   guard 0: gh pr merge 3
+marker
+  ok   marker format
+  ok   run id format
+  ok   bad event: exit 2
+  ok   value with --> refused
+  ok   en_US: uppercase skill refused
+  ok   en_US: uppercase run refused
+spec
+  ok   hash format
+  ok   no snapshot yet
+  ok   CRLF hashes like LF
+  ok   no spec block: exit 3
+  ok   snapshot written
+  ok   snapshot marker line
+  ok   hash matches snapshot
+  ok   stale hash: exit 3
+  ok   set replaced
+  ok   text outside the markers unchanged
+  ok   set hash equals hash
+  ok   set adds a missing block
+  ok   added block hashes the same
+issue labels and children
+  ok   label added
+  ok   labels swapped
+  ok   removed reported
+  ok   bad label: exit 2
+  ok   child created and linked
+  ok   child is spec-ready
+  ok   rerun reuses the child
+  ok   no Parent line: exit 2
+claim
+  ok   fresh claim
+  ok   branch pushed
+  ok   worktree on pj/5
+  ok   issue assigned
+  ok   draft PR with claim marker
+  ok   rerun resumes
+  ok   rerun opens no 2nd PR
+  ok   resume from origin with own PR
+  ok   assigned to other: exit 3
+  ok   other open PR: exit 3
+  ok   branch of someone else: exit 3
+  ok   no worktree for #8
+worktrees
+  ok   review worktree
+  ok   review worktree detached
+  ok   review worktree at PR head
+  ok   review rerun is fresh
+  ok   remove outside .worktrees: exit 2
+  ok   remove with ..: exit 2
+  ok   review worktree removed
+  ok   pj branch worktree
+  ok   pj branch reused
+  ok   other branch: pr- path, no push
+  ok   fork PR: exit 3
+review writes
+  ok   review without marker: exit 2
+  ok   review posted
+  ok   review is a COMMENT on the head
+  ok   reply posted
+  ok   reply with review marker: exit 2
+  ok   human thread: exit 3
+  ok   own thread resolved
+state
+  ok   markers parsed
+  ok   marker reason
+  ok   last marker time
+  ok   trusted answer after the marker
+  ok   untrusted comment split off
+  ok   maxQ
+  ok   open PRs only
+  ok   spec block and children
+  ok   config narrows trust
+  ok   bad trust config: exit 3
+  ok   en_US: bad trust config: exit 3
+  ok   review rounds
+  ok   new commits after review
+  ok   actionable threads only
+  ok   thread origin and trust
+  ok   linked issue, author trust
+comment and pr writes
+  ok   comment without marker: exit 2
+  ok   issue comment posted
+  ok   pr comment posted
+  ok   PR body without claim marker: exit 2
+  ok   PR body set
+  ok   PR ready
+  ok   not a pj branch: exit 3
+  ok   fork PR: exit 3
+  ok   merged PR: exit 3
+read
+  ok   issue counts
+  ok   marker comment header
+  ok   untrusted header
+  ok   untrusted body quoted
+  ok   untrusted issue body quoted
+  ok   trusted body as is
+  ok   pr counts
+  ok   pr author trusted
+  ok   thread header
+  ok   thread comment id
+  ok   untrusted PR comment quoted
+  ok   pr diff written
+  ok   diff since a commit
+  ok   unknown since: exit 3
+  ok   full diff via gh
+list
+  ok   dependsOn parsed
+  ok   parent parsed
+  ok   prs listed
+  ok   labels and missing
+forge selection
+  ok   host of an https URL
+  ok   host of an scp URL
+  ok   host of an ssh URL
+  ok   codeberg.org is forgejo
+  ok   unknown forge: exit 3
+  ok   bad forge name: exit 2
+  ok   forge saved in git config
+  ok   status reports the saved forge
+scripts copy
+  ok   no scripts on main
+  ok   scripts written
+  ok   adapter of the forge
+  ok   no prep.sh, no forge/
+  ok   second run: current
+  ok   stale file removed
+  ok   forge read from main
+  ok   scripts on main current
+  ok   the copy runs with its own adapter
+  ok   changed copy: stale
+forgejo
+  ok   status: forge, curl, auth
+  ok   bad token: auth false
+  ok   token from the fj keys
+  ok   labels created
+  ok   label color has #
+  ok   labels second run: none
+  ok   labels read over 2 pages
+  ok   protections missing
+  ok   protections created
+  ok   protections present
+  ok   attachments created
+  ok   attach prints the raw URL
+  ok   prep PR created
+  ok   rerun reuses the open PR
+  ok   rerun: no 2nd PR
+  ok   claim created
+  ok   draft PR has the WIP prefix
+  ok   draft PR has the claim marker
+  ok   issue assigned
+  ok   claim rerun resumes
+  ok   PR body closes the issue: exit 3
+  ok   fork PR: exit 3
+  ok   ready drops the WIP prefix
+  ok   prs listed
+  ok   issue markers
+  ok   trust: collaborator and org member
+  ok   trust: others untrusted
+  ok   issue: open PR from the body
+  ok   issue: spec, children, state
+  ok   read: owner trusted
+  ok   read: admin is a collaborator
+  ok   read: untrusted quoted
+  ok   pr: rounds and new commits
+  ok   pr: threads by path and line
+  ok   pr: issue, size, trust
+  ok   read pr: thread header
+  ok   read pr: comment id
+  ok   read pr: diff
+  ok   review posted
+  ok   review: COMMENT on the head, lines mapped
+  ok   reply goes to the thread of the comment
+  ok   reply to an unknown comment fails
+  ok   resolve a human thread: exit 3
+  ok   resolve: no API, warning
+  ok   comment posted
+  ok   PR body set
+  ok   label added
+  ok   labels swapped
+  ok   child created, blocks the parent
+  ok   child is spec-ready
+  ok   child rerun reuses it
+  ok   no dependencies: warning
+  ok   spec set
+  ok   spec set keeps the other bytes
+  ok   spec hash
+  ok   issues listed
+  ok   every call sent the token
+  ok   token never on the command line
+docs flow diagram
+  ok   README shows docs/flow.svg after the intro, before Skills
+  ok   each skill links to its SKILL.md
+  ok   the five issue states are shown
+  ok   no unbuilt skills
+  ok   index.html loads flow.svg, no inline svg
+  ok   each link resolves
+  ok   each link opens in the top window
+  ok   dark theme in the file
+  ok   880 px wide or less
+  ok   text 12 px or larger
+  ok   alt names the states in order
+  ok   alt names the skills in order
+  ok   svg title and desc
+  ok   Implemented means PR ready
+  ok   flow.svg 100 KB or less
+  ok   no script or external loads
+
+302 passed, 0 failed

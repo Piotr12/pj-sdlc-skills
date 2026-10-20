@@ -1,0 +1,4 @@
+Click test, headless Chrome, --allow-file-access-from-files.
+A page loads docs/flow.svg in <object>, then dispatches a click on the pj-implement link.
+With target="_top": the top window shows skills/pj-implement/SKILL.md ("name: pj-implement").
+Without target="_top": the top window stays on the test page (the link opens inside the object).
