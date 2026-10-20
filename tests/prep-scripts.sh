@@ -808,5 +808,44 @@ ok "every call sent the token" sh -c "! grep -v 'token=fjtok42$' '$FJ/log' | gre
 ok "token never on the command line" test ! -e "$FJ/leaks"
 unset FAKE_FJ FORGEJO_TOKEN; export PJ_FORGE=github
 
+echo "docs flow diagram"
+R=$(cd "$S/../../.." && pwd); F="$R/docs/flow.svg"; X="$R/docs/index.html"; RM="$R/README.md"
+IMG='^!\[.*\]\(docs/flow\.svg\)$'
+alt=$(grep -E "$IMG" "$RM" | sed 's/^!\[\(.*\)\](docs\/flow\.svg)$/\1/')
+count() { grep -oF "$1" "$2" | wc -l | tr -d ' '; } # <fixed string> <file>
+in_order() { # <text> <word...>: each word is in the text, after the previous one
+  local t=$1 p=-1 w rest i; shift
+  for w in "$@"; do
+    rest=${t#*"$w"}; [ "$rest" != "$t" ] || return 1
+    i=$(( ${#t} - ${#rest} )); [ $i -gt $p ] || return 1; p=$i
+  done
+}
+readme_place() { awk '/^Agent skills/ {a = NR} /^!\[.*\]\(docs\/flow\.svg\)$/ {i = NR} /^## Skills$/ {s = NR}
+  END {exit !(a && i && s && a < i && i < s)}' "$RM"; }
+skills_linked() { local d; for d in "$R"/skills/pj-*/; do grep -qF "href=\"../skills/$(basename "$d")/SKILL.md\"" "$F" || return 1; done; }
+links_resolve() { local h n=0; for h in $(grep -oE 'href="[^"]*"' "$F" | sed 's/^href="//; s/"$//'); do
+  [ -f "$R/docs/$h" ] || return 1; n=$((n + 1)); done; [ $n -gt 0 ]; }
+top_links() { local a; a=$(count '<a ' "$F"); [ "$a" -gt 0 ] && [ "$a" -eq "$(count 'target="_top"' "$F")" ]; }
+states_shown() { local s; for s in Fresh needs-input spec-ready Implemented Done; do grep -qF ">$s<" "$F" || return 1; done; }
+width_ok() { local vb w; vb=$(sed -n 's/.*viewBox="0 0 \([0-9]*\) [0-9]*".*/\1/p' "$F" | head -1)
+  w=$(sed -n 's/.*<svg[^>]* width="\([0-9]*\)".*/\1/p' "$F" | head -1); [ -n "$vb" ] && [ "$vb" -le 880 ] && [ "$vb" = "$w" ]; }
+fonts_ok() { grep -oE 'font-size(:|=")[[:space:]]*[0-9.]+' "$F" | grep -oE '[0-9.]+$' | awk '$1 < 12 {bad = 1} END {exit bad || !NR}'; }
+ok "README shows docs/flow.svg after the intro, before Skills" readme_place
+ok "each skill links to its SKILL.md" skills_linked
+ok "the five issue states are shown" states_shown
+ok "no unbuilt skills"         sh -c "! grep -qiE 'someday|pj-upgrade|pj-release|pj-fix-ci|pj-resolve-conflict' '$F' '$X'"
+ok "index.html loads flow.svg, no inline svg" sh -c "grep -qF '<object data=\"flow.svg\"' '$X' && ! grep -qF '<svg' '$X'"
+ok "each link resolves"        links_resolve
+ok "each link opens in the top window" top_links
+ok "dark theme in the file"    grep -qF '@media (prefers-color-scheme: dark)' "$F"
+ok "880 px wide or less"       width_ok
+ok "text 12 px or larger"      fonts_ok
+ok "alt names the states in order" in_order "$alt" Fresh needs-input spec-ready Implemented Done
+ok "alt names the skills in order" in_order "$alt" pj-grill-for-specs-readiness pj-implement pj-review
+ok "svg title and desc"        sh -c "grep -qF '<title' '$F' && grep -qF '<desc' '$F'"
+ok "Implemented means PR ready" sh -c "grep -qF '>PR ready<' '$F' && ! grep -qF 'PR linked' '$F'"
+ok "flow.svg 100 KB or less"   test "$(wc -c < "$F" | tr -d ' ')" -le 102400
+ok "no script or external loads" sh -c "! grep -qiE '<script|[[:space:]]on[a-z]+=|@import|url\\(http|href=\"http' '$F'"
+
 echo; echo "$pass passed, $fail failed"
 [ $fail -eq 0 ]
