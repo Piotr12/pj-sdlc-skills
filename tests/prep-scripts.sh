@@ -808,5 +808,19 @@ ok "every call sent the token" sh -c "! grep -v 'token=fjtok42$' '$FJ/log' | gre
 ok "token never on the command line" test ! -e "$FJ/leaks"
 unset FAKE_FJ FORGEJO_TOKEN; export PJ_FORGE=github
 
+echo "markdown"
+M="$(cd "$S/../../.." && pwd)"
+# A table row after a paragraph line, outside code fences, splits a table. A header row with its delimiter row is fine.
+split_rows() {
+  awk 'FNR == 1 { prev = p = ""; f = 0 } /^```/ { f = !f }
+    !f && p ~ /^\|/ && prev != "" && prev !~ /^\|/ && $0 !~ /^\|[ :-]*-/ { print FILENAME ":" FNR - 1 }
+    { prev = p; p = $0 }' "$@"
+}
+ok "no split tables" test -z "$(split_rows "$M"/README.md "$M"/AGENTS.md "$M"/skills/*/SKILL.md \
+  "$M"/skills/pj-prep-the-repo/reference/*.md "$M"/skills/pj-prep-the-repo/templates/*.md)"
+ok "issue states in order, Done last" test "$(sed -n '/^## Issue states/,/^## /p' "$M/skills/pj-prep-the-repo/reference/protocol.md" \
+  | awk -F' *\\| *' '/^\| / && $2 != "State" { r = r $2 "," } /^$/ && r { print r; exit }')" \
+  = 'Fresh,`needs-input`,`spec-ready`,Implemented,Done,'
+
 echo; echo "$pass passed, $fail failed"
 [ $fail -eq 0 ]

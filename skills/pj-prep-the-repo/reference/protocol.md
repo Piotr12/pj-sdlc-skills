@@ -16,9 +16,9 @@ There are two labels. The forge supplies the other states.
 | `needs-input` | Label. Grill asked questions or a sign-off question. A human must answer. |
 | `spec-ready` | Label. The spec meets the Definition of Ready, and a trusted human signed it off. |
 | Implemented | A PR that is ready for review closes the issue. A draft PR means that work is in progress. |
+| Done | The issue has the closed state. |
 
 On Forgejo, a draft PR has a `WIP:` title prefix. A PR closes an issue with a keyword in its body, for example `Closes #5`.
-| Done | The issue has the closed state. |
 
 - An issue has one of the two labels at most. Set a label with `.pj/scripts/issue.sh label`. It removes the other label.
 - Only `pj-grill-for-specs-readiness` sets the labels on an issue. `pj-decompose` sets `spec-ready` on the child issues that it creates.
