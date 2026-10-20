@@ -14,7 +14,8 @@ cd "$top"
 cmd_pr() {
   local pr=${1:-} info head fork rel wt cur action push=false
   pj_num "$pr"
-  info=$(gh pr view "$pr" --json headRefName,isCrossRepository --jq '"\(.headRefName) \(.isCrossRepository)"')
+  pj_need_forge
+  info=$(forge_pr_view "$pr" '"\(.headRefName) \(.isCrossRepository)"')
   head=${info% *}; fork=${info##* }
   [ "$fork" = false ] || pj_die $PJ_EXIT_ASK fork-pr "PR #$pr comes from a fork. Review the diff only."
   case "$head" in pj/*[!0-9]*|pj/) rel=".worktrees/pr-$pr" ;; pj/*) rel=".worktrees/${head#pj/}" ;; *) rel=".worktrees/pr-$pr" ;; esac

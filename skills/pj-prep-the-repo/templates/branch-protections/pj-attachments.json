@@ -1,0 +1,7 @@
+{
+  "rule_name": "attachments",
+  "enable_push": true,
+  "enable_push_whitelist": false,
+  "required_approvals": 0,
+  "apply_to_admins": true
+}

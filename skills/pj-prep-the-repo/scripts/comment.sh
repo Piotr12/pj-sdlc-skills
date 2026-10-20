@@ -11,5 +11,5 @@ pj_num "$n"
 [ -f "$body" ] || pj_die $PJ_EXIT_USAGE usage "comment.sh issue|pr <n> <body-file>"
 pj_has_marker "$body" || pj_die $PJ_EXIT_USAGE no-marker "The first line of $body must be a pj marker."
 pj_require_main
-url=$(gh "$kind" comment "$n" --body-file "$body")
+url=$(forge_comment "$kind" "$n" "$body")
 printf '{"ok":true,"url":%s}\n' "$(pj_json "$url")"

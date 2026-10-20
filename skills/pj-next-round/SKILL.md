@@ -17,16 +17,16 @@ Look at the issues, the PRs, and the repo. Suggest the next actions. Change noth
 ## Rules
 
 - Follow `<pj>/reference/protocol.md`. `<pj>` is the `pj-prep-the-repo` skill folder, next to this folder.
-- Never call `gh` directly. Use the scripts in `<pj>/scripts/`. Post each comment with `comment.sh`.
+- Never call `gh`, `fj`, or the forge API directly. Use the scripts in `.pj/scripts/`. Post each comment with `comment.sh`.
 - Read-only. Do not run the commands that you suggest.
 - Read the state from labels, PRs, and markers only. Do not read prose.
 - Do not write to the devlog.
 
 ## Steps
 
-1. Run `<pj>/scripts/list.sh issues --all` and `<pj>/scripts/list.sh prs`.
-2. For each open PR, run `<pj>/scripts/state.sh pr <pr>`.
-3. For each open issue without a PR, run `<pj>/scripts/state.sh issue <n>`.
+1. Run `.pj/scripts/list.sh issues --all` and `.pj/scripts/list.sh prs`.
+2. For each open PR, run `.pj/scripts/state.sh pr <pr>`.
+3. For each open issue without a PR, run `.pj/scripts/state.sh issue <n>`.
 4. Find the possible actions with the table below.
 5. Sort the actions by priority. Pick the top 5.
 6. Put the actions into parallel groups.

@@ -1,0 +1,10 @@
+{
+  "rule_name": "main",
+  "enable_push": false,
+  "required_approvals": 0,
+  "block_on_rejected_reviews": true,
+  "block_on_official_review_requests": false,
+  "block_on_outdated_branch": false,
+  "dismiss_stale_approvals": false,
+  "apply_to_admins": true
+}

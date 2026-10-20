@@ -1,6 +1,6 @@
 ---
 name: pj-prep-the-repo
-description: Prepare a new or existing GitHub repo for the pj SDLC skills. Creates the labels and the attachments branch, and opens a PR that adds the AGENTS.md rules, CLAUDE.md, .pj/config.json, and optional enforcement configs. Use when the user asks to set up, initialize, or prepare a repo for the pj skills, or to refresh the pj rules. Safe to run again.
+description: Prepare a new or existing GitHub or Forgejo repo for the pj SDLC skills. Creates the labels and the attachments branch, and opens a PR that adds the scripts for the forge in .pj/scripts/, the AGENTS.md rules, CLAUDE.md, .pj/config.json, and optional enforcement configs. Use when the user asks to set up, initialize, or prepare a repo for the pj skills, or to refresh the pj rules. Safe to run again.
 license: MIT
 metadata:
   version: "0.2.0"
@@ -19,8 +19,17 @@ Prepare the current repo for the pj skills. The repo can be new or old.
 
 ## Scripts
 
-`<skill>/scripts/` does the git and gh work. Each script checks the state first, so a rerun after a crash is safe.
+`<skill>/scripts/` does the git and forge work. Each script checks the state first, so a rerun after a crash is safe.
 Each script prints one JSON line.
+
+The scripts are the same for each forge. Only the adapter differs:
+
+| Forge | Adapter | Uses |
+|---|---|---|
+| GitHub | `<skill>/scripts/forge/github.sh` | `gh` |
+| Forgejo | `<skill>/scripts/forge/forgejo.sh` | `curl` and `jq` on the REST API. `fj` has no API command and no JSON output. |
+
+Step 5 copies the scripts and the adapter of the forge to `.pj/scripts/` in the repo. The other skills use that copy.
 
 | Exit | Meaning | Action |
 |---|---|---|
@@ -31,13 +40,14 @@ Each script prints one JSON line.
 
 | `reason` (exit 3) | Ask the user to |
 |---|---|
-| `default-branch-not-main` | Rename the default branch to `main` on GitHub, or stop. pj supports `main` only. |
+| `forge-unknown` | Tell the forge of `origin`. Then run `<skill>/scripts/prep.sh forge github` or `<skill>/scripts/prep.sh forge forgejo`. |
+| `default-branch-not-main` | Rename the default branch to `main` on the forge, or stop. pj supports `main` only. |
 | `shallow-clone` | Run `git fetch --unshallow origin`. |
 | `git-too-old` | Install git 2.42 or later. |
 | `attachments-not-orphan` | Rename or delete the existing `attachments` branch. |
 | `path-in-use`, `worktree-wrong-branch`, `two-prep-branches`, `dirty-leftover` | Look at the named worktree or branch, then clean it up. |
 | `sensitive-files` | Remove the listed files from the change, or add them to `.gitignore`. |
-| `rulesets-unavailable`, `ruleset-create-failed` | Create the rulesets by hand, or continue without them. |
+| `rulesets-unavailable`, `ruleset-create-failed` | Create the rulesets or branch protections by hand, or continue without them. |
 | `branch-diverged` | Resolve the prep branch by hand. |
 
 ## Steps
@@ -46,18 +56,24 @@ Each script prints one JSON line.
 
 | Tool | Needed by | Check | Install |
 |---|---|---|---|
-| `gh`, logged in | All skills | `prep.sh status` | `brew install gh`, then `gh auth login` |
+| GitHub: `gh`, logged in | All skills | `prep.sh status` | `brew install gh`, then `gh auth login` |
+| Forgejo: `curl`, `jq` 1.6 or later, and a token | All skills | `prep.sh status` | `brew install jq`. Token: `FORGEJO_TOKEN`, or `fj auth add-key <host>` from forgejo-cli |
 | `git` 2.42 or later | All skills (worktrees) | `git --version` | `brew install git`, or the package manager |
 | `gitleaks` (recommended) | Secret scan before each write to `attachments` | `gitleaks version` | `brew install gitleaks`, or a release binary |
 | Headless browser | pj-mock-it-up, UI evidence | 1. `npx --no-install playwright --version` 2. `command -v google-chrome chromium chromium-browser`, or the Chrome app on macOS | `npx playwright install --with-deps chromium` |
 | Stack tools | Build, lint, tests | The commands in the Project section | As the stack needs |
 | Enforcement tools | Build, lint, tests | See `<skill>/reference/enforcement.md` | See `<skill>/reference/enforcement.md` |
 
-Run `<skill>/scripts/prep.sh status` for git, gh, the remote, and the current state.
+Run `<skill>/scripts/prep.sh status` for git, the forge, the remote, and the current state.
+`forge` comes from `origin`: `github.com` is GitHub, `codeberg.org` is Forgejo.
+If `forge` is empty, ask the user which forge `origin` uses. Then run `<skill>/scripts/prep.sh forge <forge>` and run `status` again.
+Forgejo with an ssh `origin` on another port, or under a sub-path: ask for the https URL of the repo.
+Then run `git config pj.forgeUrl <url>`.
+
 Show one table with the result for each tool.
 Stop before step 2 in these cases. Show the reason.
 
-- `gh` or `git` is missing, or `gitOk` is false.
+- `git` is missing, `gitOk` is false, `cliOk` is false, or `auth` is false. `cli` names the tool of the forge.
 - `mainOk` is false: the default branch of `origin` is not `main`.
 - `shallow` is true.
 
@@ -73,12 +89,12 @@ It adds `.worktrees/` to `.git/info/exclude`, so the main checkout stays clean b
 Run `<skill>/scripts/prep.sh labels`.
 It creates `needs-input` and `spec-ready` if they are missing. It does not change existing labels.
 
-Run `<skill>/scripts/prep.sh rulesets`. It lists the missing rulesets:
+Run `<skill>/scripts/prep.sh rulesets`. It lists the missing rulesets. On Forgejo they are branch protections.
 
-| Ruleset | Branch | Rules |
-|---|---|---|
-| `pj-main` | `main` | PR required, review threads resolved, no force-push, no deletion |
-| `pj-attachments` | `attachments` | No force-push, no deletion |
+| Ruleset | Branch | GitHub rules | Forgejo rules |
+|---|---|---|---|
+| `pj-main` | `main` | PR required, review threads resolved, no force-push, no deletion | PR required, no force-push, no deletion. Forgejo has no rule for resolved threads. |
+| `pj-attachments` | `attachments` | No force-push, no deletion | No force-push, no deletion |
 
 The rulesets make the Autonomy rules hold on the server, for agents and for humans.
 If one is missing, show this table and ask the user.
@@ -97,6 +113,10 @@ If `attachments` shares history with `main`, it exits with 3.
 Run `<skill>/scripts/prep.sh worktree`.
 It creates `.worktrees/prep` on a `pj/prep-the-repo` branch, or reuses the branch of an open prep PR.
 Make all file changes of steps 6 to 11 in `.worktrees/prep`.
+
+Run `<skill>/scripts/prep.sh scripts`.
+It copies the scripts and the adapter of the forge to `.pj/scripts/`, and removes old files there.
+The other skills run `.pj/scripts/` after the PR merges. A rerun refreshes the copy.
 
 ### 6. Write the config
 
@@ -190,6 +210,7 @@ If the script cannot write to `attachments`, it prints the entry. Put it in the 
 Tell the user:
 
 - The result of the tool check.
+- The forge, and if `.pj/scripts/` changed.
 - What you created, and what existed.
 - The rulesets that exist, and the ones that the user declined.
 - The link to the PR.

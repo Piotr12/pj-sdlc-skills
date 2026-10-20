@@ -22,9 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: JSON files parse
-        run: for f in .claude-plugin/*.json hooks/hooks.json skills/pj-prep-the-repo/templates/*.json skills/pj-prep-the-repo/templates/rulesets/*.json; do python3 -m json.tool "$f" >/dev/null || exit 1; done
+        run: for f in .claude-plugin/*.json hooks/hooks.json skills/pj-prep-the-repo/templates/*.json skills/pj-prep-the-repo/templates/rulesets/*.json skills/pj-prep-the-repo/templates/branch-protections/*.json; do python3 -m json.tool "$f" >/dev/null || exit 1; done
       - name: Shell syntax
-        run: for f in skills/pj-prep-the-repo/scripts/*.sh hooks/*.sh tests/*.sh; do bash -n "$f" || exit 1; done
+        run: for f in skills/pj-prep-the-repo/scripts/*.sh skills/pj-prep-the-repo/scripts/forge/*.sh hooks/*.sh tests/*.sh; do bash -n "$f" || exit 1; done
       - name: Vale
         run: |
           curl -sSfL -o vale.tgz "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"

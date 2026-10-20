@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # Idempotent steps of pj-prep-the-repo. Each command checks the local and remote
 # state first, so it can run again after a crash at any point.
-# Usage: prep.sh status | exclude | labels | rulesets [--apply] | attachments | worktree | pr <body-file>
+# Usage: prep.sh status | forge <name> | exclude | labels | rulesets [--apply] | attachments | worktree
+#        | scripts | pr <body-file>
 # Prints one JSON line. Exit 3: stop and ask the user. Exit 4: origin has no commits yet.
 # Every command that changes something first checks that origin uses main.
 
 . "$(dirname "$0")/lib.sh"
 
 PREP=pj/prep-the-repo
-PJ_TEMPLATES="$(cd "$(dirname "$0")/../templates" && pwd)"
+PJ_TEMPLATES="$PJ_DIR/../templates"
 TITLE="chore: prepare repo for pj skills"
 
 top=$(pj_top)
@@ -25,11 +26,29 @@ prep_prs() { pj_prs | awk -v p="$PREP" 'index($3, p) == 1 && $5 != "true" {print
 SENSITIVE='(^|/)(\.env(\..*)?|node_modules/.*|.*\.pem|.*\.key|.*\.p12|id_rsa.*|id_ed25519.*)$'
 pr_of() { echo "$2" | awk -v b="$1" '$3 == b {print; exit}'; } # <branch> <prs>
 
+# Shared scripts and the adapter that prep.sh scripts copies, as "<source> <name in .pj/scripts>".
+script_files() {
+  local f
+  for f in "$PJ_DIR"/*.sh; do [ "${f##*/}" = prep.sh ] || echo "$f ${f##*/}"; done
+  echo "$PJ_DIR/forge/$PJ_FORGE_NAME.sh forge.sh"
+}
+
+# missing | current | stale: .pj/scripts on <ref> against the scripts of this skill.
+scripts_state() { # <ref>
+  local src name n=0
+  git cat-file -e "$1:.pj/scripts/forge.sh" 2>/dev/null || { echo missing; return; }
+  while read -r src name; do
+    git show "$1:.pj/scripts/$name" 2>/dev/null | cmp -s - "$src" || { echo stale; return; }
+    n=$((n + 1))
+  done <<< "$(script_files)"
+  [ "$(git ls-tree --name-only "$1:.pj/scripts/" | wc -l | tr -d ' ')" -eq $n ] && echo current || echo stale
+}
+
 cmd_status() {
-  local v ok gh=false auth=false remote="" def="" shallow att=none wt=missing leaks=false
+  local v ok cli=false auth=false remote="" def="" shallow att=none wt=missing leaks=false sc=missing
   v=$(git --version | awk '{print $3}')
   ok=false; pj_git_ok && ok=true
-  command -v gh >/dev/null && gh=true && gh auth status >/dev/null 2>&1 && auth=true
+  if [ -n "$PJ_FORGE_NAME" ] && forge_cli_ok; then cli=true; forge_auth_ok && auth=true; fi
   command -v gitleaks >/dev/null && leaks=true
   remote=$(git remote get-url origin 2>/dev/null || true)
   shallow=$(git rev-parse --is-shallow-repository)
@@ -41,9 +60,37 @@ cmd_status() {
   elif pj_has_ref "refs/heads/$PJ_ATT"; then att=local-only
   fi
   wt_registered "$top/.worktrees/prep" && { wt=clean; is_dirty "$top/.worktrees/prep" && wt=dirty; }
-  printf '{"ok":true,"git":%s,"gitOk":%s,"gh":%s,"ghAuth":%s,"gitleaks":%s,"remote":%s,"defaultBranch":%s,"mainOk":%s,"shallow":%s,"attachments":"%s","prepWorktree":"%s","timezone":%s}\n' \
-    "$(pj_json "$v")" "$ok" "$gh" "$auth" "$leaks" "$(pj_json "$remote")" "$(pj_json "$def")" \
-    "$([ "$def" = "$PJ_MAIN" ] && echo true || echo false)" "$shallow" "$att" "$wt" "$(pj_json "$(pj_tz)")"
+  [ -n "$PJ_FORGE_NAME" ] && pj_has_ref "refs/remotes/origin/$PJ_MAIN" && sc=$(scripts_state "origin/$PJ_MAIN")
+  printf '{"ok":true,"git":%s,"gitOk":%s,"forge":%s,"cli":%s,"cliOk":%s,"auth":%s,"gitleaks":%s,"remote":%s,"defaultBranch":%s,"mainOk":%s,"shallow":%s,"attachments":"%s","prepWorktree":"%s","scripts":"%s","timezone":%s}\n' \
+    "$(pj_json "$v")" "$ok" "$(pj_json "$PJ_FORGE_NAME")" "$(pj_json "${PJ_FORGE_CLI:-}")" "$cli" "$auth" "$leaks" \
+    "$(pj_json "$remote")" "$(pj_json "$def")" \
+    "$([ "$def" = "$PJ_MAIN" ] && echo true || echo false)" "$shallow" "$att" "$wt" "$sc" "$(pj_json "$(pj_tz)")"
+}
+
+# Saves the forge of this clone in git config, for a host that prep.sh status cannot tell.
+cmd_forge() {
+  local n=${1:-}
+  case " $PJ_FORGES " in *" $n "*) [ -n "$n" ] ;; *) false ;; esac || pj_die $PJ_EXIT_USAGE usage "prep.sh forge github|forgejo"
+  git config pj.forge "$n"
+  printf '{"ok":true,"forge":"%s"}\n' "$n"
+}
+
+# Copies the shared scripts and the adapter of the forge to .pj/scripts/ in the prep worktree.
+cmd_scripts() {
+  local wt="$top/.worktrees/prep" dest src name f action=current
+  pj_require_main
+  wt_registered "$wt" || pj_die $PJ_EXIT_ERROR no-worktree "Run prep.sh worktree first."
+  dest="$wt/.pj/scripts"
+  mkdir -p "$dest"
+  while read -r src name; do
+    cmp -s "$src" "$dest/$name" || { cp "$src" "$dest/$name"; action=written; }
+    chmod +x "$dest/$name"
+  done <<< "$(script_files)"
+  for f in "$dest"/*; do
+    [ -e "$f" ] || continue
+    script_files | awk -v n="${f##*/}" '$2 == n {found=1} END {exit !found}' || { rm -rf "$f"; action=written; }
+  done
+  printf '{"ok":true,"action":"%s","forge":"%s","path":".pj/scripts"}\n' "$action" "$PJ_FORGE_NAME"
 }
 
 cmd_exclude() { printf '{"ok":true,"action":"%s"}\n' "$(pj_exclude_worktrees)"; }
@@ -51,13 +98,13 @@ cmd_exclude() { printf '{"ok":true,"action":"%s"}\n' "$(pj_exclude_worktrees)"; 
 cmd_labels() {
   local have created=""
   pj_require_main
-  have=$(gh label list --limit 1000 --json name --jq '.[].name')
+  have=$(forge_labels)
   if ! echo "$have" | grep -qxF needs-input; then
-    gh label create needs-input --color FBCA04 --description "pj: waiting for a human answer" >/dev/null
+    forge_label_create needs-input FBCA04 "pj: waiting for a human answer"
     created="$created needs-input"
   fi
   if ! echo "$have" | grep -qxF spec-ready; then
-    gh label create spec-ready --color 0E8A16 --description "pj: meets the Definition of Ready" >/dev/null
+    forge_label_create spec-ready 0E8A16 "pj: meets the Definition of Ready"
     created="$created spec-ready"
   fi
   printf '{"ok":true,"created":%s}\n' "$(pj_json "${created# }")"
@@ -66,12 +113,12 @@ cmd_labels() {
 cmd_rulesets() {
   local apply=${1:-} have name present="" created="" missing="" err
   pj_require_main
-  have=$(gh api 'repos/{owner}/{repo}/rulesets' --jq '.[].name' 2>&1) \
+  have=$(forge_protections 2>&1) \
     || pj_die $PJ_EXIT_ASK rulesets-unavailable "$have"
   for name in pj-main pj-attachments; do
     if echo "$have" | grep -qxF "$name"; then present="$present $name"
     elif [ "$apply" = --apply ]; then
-      err=$(gh api -X POST 'repos/{owner}/{repo}/rulesets' --input "$PJ_TEMPLATES/rulesets/$name.json" 2>&1 >/dev/null) \
+      err=$(forge_protection_create "$name" 2>&1 >/dev/null) \
         || pj_die $PJ_EXIT_ASK ruleset-create-failed "$name: $err"
       created="$created $name"
     else missing="$missing $name"; fi
@@ -204,10 +251,10 @@ cmd_pr() {
   fi
   open=$(prep_prs | awk -v b="$b" '$3 == b && $2 == "OPEN" {print; exit}')
   if [ -n "$open" ]; then
-    gh pr edit "$(echo "$open" | awk '{print $1}')" --body-file "$body" >/dev/null
+    forge_pr_set_body "$(echo "$open" | awk '{print $1}')" "$body"
     url=$(echo "$open" | awk '{print $4}'); action=updated
   else
-    url=$(gh pr create --head "$b" --base "$PJ_MAIN" --title "$TITLE" --body-file "$body"); action=created
+    url=$(forge_pr_create "$b" "$PJ_MAIN" "$TITLE" "$body"); action=created
   fi
   git worktree remove "$wt"
   printf '{"ok":true,"action":"%s","pr":%s,"branch":%s}\n' "$action" "$(pj_json "$url")" "$(pj_json "$b")"
@@ -215,11 +262,13 @@ cmd_pr() {
 
 case "${1:-}" in
   status) cmd_status ;;
+  forge) shift; cmd_forge "$@" ;;
   exclude) cmd_exclude ;;
   labels) cmd_labels ;;
   rulesets) shift; cmd_rulesets "$@" ;;
   attachments) cmd_attachments ;;
   worktree) cmd_worktree ;;
+  scripts) cmd_scripts ;;
   pr) shift; cmd_pr "$@" ;;
-  *) pj_die $PJ_EXIT_USAGE usage "prep.sh status | exclude | labels | rulesets [--apply] | attachments | worktree | pr <body-file>" ;;
+  *) pj_die $PJ_EXIT_USAGE usage "prep.sh status | forge <name> | exclude | labels | rulesets [--apply] | attachments | worktree | scripts | pr <body-file>" ;;
 esac

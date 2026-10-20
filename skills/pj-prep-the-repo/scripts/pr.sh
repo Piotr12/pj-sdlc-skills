@@ -9,7 +9,7 @@
 
 check_pj() { # <pr>
   local info
-  info=$(gh pr view "$1" --json state,isCrossRepository,headRefName --jq '"\(.state) \(.isCrossRepository) \(.headRefName)"')
+  info=$(forge_pr_view "$1" '"\(.state) \(.isCrossRepository) \(.headRefName)"')
   case "$info" in "OPEN false pj/"?*) ;; *) pj_die $PJ_EXIT_ASK not-pj-branch "PR #$1: $info" ;; esac
 }
 
@@ -20,7 +20,7 @@ cmd_body() {
   pj_is_marker "$body" claim || pj_die $PJ_EXIT_USAGE no-marker "The first line of $body must be the claim marker."
   pj_require_main
   check_pj "$pr"
-  gh pr edit "$pr" --body-file "$body" >/dev/null
+  forge_pr_set_body "$pr" "$body"
   printf '{"ok":true,"pr":%s}\n' "$pr"
 }
 
@@ -29,7 +29,7 @@ cmd_ready() {
   pj_num "$pr"
   pj_require_main
   check_pj "$pr"
-  gh pr ready "$pr" >/dev/null
+  forge_pr_ready "$pr"
   printf '{"ok":true,"pr":%s}\n' "$pr"
 }
 

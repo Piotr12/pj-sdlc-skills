@@ -2,7 +2,7 @@
 # Write files to the attachments branch from a temporary detached worktree.
 # Usage: attach.sh -m <message> <dest> <src> [<dest> <src> ...]
 #   <dest> is a path on the branch under issues/, prs/ or devlog/. <src> is a local file or folder.
-# Prints one JSON line. Exit 3: attachments is missing or not an orphan, a destination or source
+# Prints one JSON line, with the raw URL of each <dest> in "urls". Exit 3: attachments is missing or not an orphan, a destination or source
 # is not allowed, or the secret scan found something.
 # Secret scan: gitleaks, if installed. "secretScan": "required" in .pj/config.json makes it mandatory.
 
@@ -85,5 +85,12 @@ until git -C "$wt" push -q --no-verify origin "HEAD:$PJ_ATT" 2>/dev/null; do
   fi
 done
 
-printf '{"ok":true,"pushed":true,"commit":%s,"retries":%d,"scanned":%s,"warning":%s}\n' \
-  "$(pj_json "$(git -C "$wt" rev-parse HEAD)")" "$tries" "$scanned" "$(pj_json "$warning")"
+# Links by branch path, so they work after a squash of the branch.
+urls="" base=""
+declare -F forge_raw_url >/dev/null && base=$(forge_raw_url @PATH@ 2>/dev/null || true)
+if [ -n "$base" ]; then
+  i=0
+  while [ $i -lt ${#args[@]} ]; do urls="$urls,$(pj_json "${base/@PATH@/${args[$i]}}")"; i=$((i + 2)); done
+fi
+printf '{"ok":true,"pushed":true,"commit":%s,"retries":%d,"urls":[%s],"scanned":%s,"warning":%s}\n' \
+  "$(pj_json "$(git -C "$wt" rev-parse HEAD)")" "$tries" "${urls#,}" "$scanned" "$(pj_json "$warning")"

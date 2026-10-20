@@ -17,7 +17,8 @@ Check the repo setup, the `attachments` branch, and `docs/`. Suggest actions. Ch
 ## Rules
 
 - Follow `<pj>/reference/protocol.md`. `<pj>` is the `pj-prep-the-repo` skill folder, next to this folder.
-- Never call `gh` directly. Use the scripts in `<pj>/scripts/`. Post each comment with `comment.sh`.
+- Never call `gh`, `fj`, or the forge API directly. Use the scripts in `<pj>/scripts/`.
+- The scripts in `<pj>/scripts/` also work before the prep PR merges.
 - Read-only. The human runs the commands, and decides which docs findings get an issue.
 - A delete breaks the links to that file in issue comments. Tell the user which issues have such links.
 - A delete does not make the repo smaller. Only a squash of the branch does. Tell this in the report.
@@ -26,7 +27,7 @@ Check the repo setup, the `attachments` branch, and `docs/`. Suggest actions. Ch
 
 ## Setup checks
 
-Run `<pj>/scripts/prep.sh status` first. It reports git, gh, the remote, and the prep state.
+Run `<pj>/scripts/prep.sh status` first. It reports git, the forge, its CLI and login, the remote, and the prep state.
 Then run `<pj>/scripts/list.sh labels`, `list.sh issues --all`, and `list.sh prs --all`.
 
 | Check | Finding | Suggested action |
@@ -36,11 +37,13 @@ Then run `<pj>/scripts/list.sh labels`, `list.sh issues --all`, and `list.sh prs
 | Attachments branch | The branch is missing, or it shares history with `main`. | Run `pj-prep-the-repo`. Make the branch again as an orphan. |
 | AGENTS.md | The file or the pj rules block is missing. The block differs from `<pj>/templates/AGENTS.rules.md`. | Run `pj-prep-the-repo`. |
 | Config | `.pj/config.json` is missing, or a value is not valid. See Config in the protocol. | Run `pj-prep-the-repo`. |
+| Forge | `forge` is empty: the script cannot tell the forge of `origin`. | `<pj>/scripts/prep.sh forge github` or `<pj>/scripts/prep.sh forge forgejo` |
+| Scripts | `scripts` is `missing` or `stale`: `.pj/scripts/` on `main` differs from `<pj>/scripts/`. | Run `pj-prep-the-repo`, then merge its PR. |
 | Worktrees | `.worktrees/` is not in `.gitignore`. | Run `pj-prep-the-repo`. |
 | Worktrees | A worktree for a merged or closed PR, or a `review-` worktree that a run left. | `git worktree remove <path>` |
 | Worktrees | A stale entry in `git worktree list`. | `git worktree prune` |
 | CLAUDE.md | The file does not import `@AGENTS.md`. | Run `pj-prep-the-repo`. |
-| Rulesets | `prep.sh rulesets` reports a missing ruleset. | Run `pj-prep-the-repo`. |
+| Rulesets | `prep.sh rulesets` reports a missing ruleset (Forgejo: branch protection). | Run `pj-prep-the-repo`. |
 
 ## Attachments checks
 

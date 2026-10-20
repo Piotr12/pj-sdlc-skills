@@ -1,6 +1,6 @@
 ---
 name: pj-implement
-description: Implement a spec-ready GitHub issue and open a PR. Claims the issue, writes a design and gets it reviewed, writes the code, tests, and docs, checks the Definition of Done, and marks the PR ready for review. Use when the user asks to implement, build, or work on a pj issue that has the spec-ready label.
+description: Implement a spec-ready issue and open a PR. Claims the issue, writes a design and gets it reviewed, writes the code, tests, and docs, checks the Definition of Done, and marks the PR ready for review. Use when the user asks to implement, build, or work on a pj issue that has the spec-ready label.
 license: MIT
 metadata:
   version: "0.2.0"
@@ -17,7 +17,7 @@ Implement a `spec-ready` issue and open a PR.
 ## Rules
 
 - Follow `<pj>/reference/protocol.md`. `<pj>` is the `pj-prep-the-repo` skill folder, next to this folder.
-- Never call `gh` directly. Use the scripts in `<pj>/scripts/`. Post each comment with `comment.sh`.
+- Never call `gh`, `fj`, or the forge API directly. Use the scripts in `.pj/scripts/`. Post each comment with `comment.sh`.
 - Never change the issue labels.
 - Work only in `.worktrees/<n>`. Push only to `pj/<n>`.
 - A small deviation from the spec: record it under Agent decisions in the PR body.
@@ -29,7 +29,7 @@ Implement a `spec-ready` issue and open a PR.
 
 ### 1. Check the issue
 
-Run `<pj>/scripts/state.sh issue <n>`.
+Run `.pj/scripts/state.sh issue <n>`.
 
 | Found | Action |
 |---|---|
@@ -37,7 +37,7 @@ Run `<pj>/scripts/state.sh issue <n>`.
 | `children` is more than 0 | Stop. Implement the child issues. |
 | An open PR that is not from `pj/<n>` | Stop. Show the PR. |
 
-Run `<pj>/scripts/spec.sh hash <n>`. If `match` is false, stop and suggest grill. The spec changed after the sign-off.
+Run `.pj/scripts/spec.sh hash <n>`. If `match` is false, stop and suggest grill. The spec changed after the sign-off.
 
 ### 2. Check the bite size
 
@@ -45,13 +45,13 @@ Read the spec from `issues/<n>/spec.md` on `attachments`. Read `biteSize` from `
 Check the spec against Too big in the protocol.
 If the bite is too big:
 
-1. Get a marker: `<pj>/scripts/marker.sh pj-implement stopped reason=too-big`.
+1. Get a marker: `.pj/scripts/marker.sh pj-implement stopped reason=too-big`.
 2. Post a comment on the issue with the marker and the criteria that failed.
 3. Recommend `pj-decompose`, and stop. The user can tell you to continue.
 
 ### 3. Claim the issue
 
-Run `<pj>/scripts/claim.sh <n>`.
+Run `.pj/scripts/claim.sh <n>`.
 It creates or resumes `.worktrees/<n>` on `pj/<n>`, and opens the draft PR. If it exits with 3, stop.
 Install the dependencies in the worktree. `pj-repro` can have made the worktree and a failing test already.
 
@@ -68,7 +68,7 @@ Make the design as short as the change allows. A small change needs a few lines.
 ## Risks               security, access, performance, migration, failure modes
 ```
 
-Write it to `attachments`: `<pj>/scripts/attach.sh -m "docs(design): #<n>" issues/<n>/design.md <file>`.
+Write it to `attachments`: `.pj/scripts/attach.sh -m "docs(design): #<n>" issues/<n>/design.md <file>`.
 
 ### 5. Review the design
 
@@ -107,13 +107,13 @@ Fix each failure. If you cannot fix it, go to Rules: you cannot finish.
 ### 8. Save the evidence
 
 Save the test output and the screenshots to `attachments`:
-`<pj>/scripts/attach.sh -m "test(evidence): #<n>" issues/<n>/evidence <folder>`.
+`.pj/scripts/attach.sh -m "test(evidence): #<n>" issues/<n>/evidence <folder>`.
 
 ### 9. Finish the PR
 
 1. Write the PR body in the format below. Keep the `claim` marker as the first line.
-2. Run `<pj>/scripts/pr.sh body <pr> <file>`.
-3. Run `<pj>/scripts/pr.sh ready <pr>`.
+2. Run `.pj/scripts/pr.sh body <pr> <file>`.
+3. Run `.pj/scripts/pr.sh ready <pr>`.
 
 ```text
 <!-- pj:v1 {"skill":"pj-implement","event":"claim",...} -->

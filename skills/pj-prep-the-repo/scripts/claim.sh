@@ -19,14 +19,9 @@ pj_fetch
 pj_exclude_worktrees >/dev/null
 git worktree prune
 
-me=$(gh api user --jq .login)
+me=$(forge_me)
 # Three lines: title, assignees, and "<number>:<head>:<fork>" of each open PR that closes the issue.
-info=$(gh api graphql -F owner='{owner}' -F name='{repo}' -F n="$n" -f query='
-  query($owner: String!, $name: String!, $n: Int!) { repository(owner: $owner, name: $name) { issue(number: $n) {
-    title assignees(first: 20) { nodes { login } }
-    closedByPullRequestsReferences(first: 20, includeClosedPrs: false) {
-      nodes { number state headRefName isCrossRepository } } } } }' \
-  --jq '.data.repository.issue | .title, ([.assignees.nodes[].login] | join(" ")),
+info=$(forge_issue_full "$n" '.title, ([.assignees.nodes[].login] | join(" ")),
     ([.closedByPullRequestsReferences.nodes[] | select(.state == "OPEN")
       | "\(.number):\(.headRefName):\(.isCrossRepository)"] | join(" "))')
 title=$(echo "$info" | sed -n 1p)
@@ -65,7 +60,7 @@ else
   action=created
 fi
 
-case " $assignees " in *" $me "*) ;; *) gh issue edit "$n" --add-assignee @me >/dev/null ;; esac
+case " $assignees " in *" $me "*) ;; *) forge_issue_assign_me "$n" ;; esac
 
 mk=$("$(dirname "$0")/marker.sh" "$skill" claim "issue=$n")
 run=$(echo "$mk" | sed -n 's/.*"run":"\([^"]*\)".*/\1/p')
@@ -76,7 +71,7 @@ if [ -z "$pr" ]; then
   # The marker holds only plain values here, so unescaping the quotes is enough.
   m=$(echo "$mk" | sed -n 's/.*"marker":"\(.*\)","run".*/\1/p' | sed 's/\\"/"/g')
   printf '%s\n\nCloses #%s\n\nWork in progress.\n' "$m" "$n" > "$tmp"
-  pr=$(gh pr create --draft --base "$PJ_MAIN" --head "$b" --title "$title" --body-file "$tmp")
+  pr=$(forge_pr_create "$b" "$PJ_MAIN" "$title" "$tmp" draft)
 fi
 
 printf '{"ok":true,"action":"%s","worktree":".worktrees/%s","branch":"%s","pr":%s,"run":"%s"}\n' \

@@ -8,6 +8,7 @@
 . "$(dirname "$0")/lib.sh"
 
 cd "$(pj_top)"
+pj_need_forge
 out=$(mktemp -d "${TMPDIR:-/tmp}/pj-read.XXXXXX")
 
 # The first line of the jq output holds the counts "<comments> <untrusted>"; the rest is the file.
@@ -20,11 +21,7 @@ cmd_issue() {
   local n=${1:-} T raw c f
   pj_num "$n"
   T=$(pj_trusted_jq)
-  raw=$(gh api graphql -F owner='{owner}' -F name='{repo}' -F n="$n" -f query='
-    query($owner: String!, $name: String!, $n: Int!) { repository(owner: $owner, name: $name) { issue(number: $n) {
-      number title state body url createdAt author { login } authorAssociation labels(first: 50) { nodes { name } }
-      comments(first: 100) { nodes { url author { login } authorAssociation createdAt body } } } } }' \
-    --jq "$PJ_JQ_DEFS $T as \$T | .data.repository.issue as \$i | \$i.comments.nodes as \$c
+  raw=$(forge_issue_full "$n" "$PJ_JQ_DEFS $T as \$T | . as \$i | \$i.comments.nodes as \$c
       | \"\(\$c | length) \([\$c[] | select(trusted(\$T) | not)] | length)\n\"
       + \"# #\(\$i.number) \(\$i.title)\n\nstate: \(\$i.state)\nlabels: \([\$i.labels.nodes[].name] | join(\", \"))\n\n## Body\n\n\"
       + (\$i | entry(\"issue\"; \$T; \"\")) + \"\n## Comments\n\n\"
@@ -38,14 +35,7 @@ cmd_pr() {
   local n=${1:-} T raw c f d
   pj_num "$n"
   T=$(pj_trusted_jq)
-  raw=$(gh api graphql -F owner='{owner}' -F name='{repo}' -F n="$n" -f query='
-    query($owner: String!, $name: String!, $n: Int!) { repository(owner: $owner, name: $name) { pullRequest(number: $n) {
-      number title state body url createdAt author { login } authorAssociation isCrossRepository headRefName
-      comments(first: 100) { nodes { url author { login } authorAssociation createdAt body } }
-      reviews(first: 100) { nodes { url author { login } authorAssociation createdAt body state } }
-      reviewThreads(first: 100) { nodes { id path line isResolved
-        comments(first: 100) { nodes { databaseId url author { login } authorAssociation createdAt body } } } } } } }' \
-    --jq "$PJ_JQ_DEFS $T as \$T | .data.repository.pullRequest as \$p
+  raw=$(forge_pr_full "$n" "$PJ_JQ_DEFS $T as \$T | . as \$p
       | [\$p.comments.nodes[], (\$p.reviews.nodes[] | select((.body // \"\") != \"\")), \$p.reviewThreads.nodes[].comments.nodes[]] as \$all
       | \"\(\$all | length) \([\$all[] | select(trusted(\$T) | not)] | length)\n\"
       + \"# PR #\(\$p.number) \(\$p.title)\n\nstate: \(\$p.state)\nauthor: @\(\$p | who) · \(\$p.authorAssociation) · \"
@@ -58,7 +48,7 @@ cmd_pr() {
           + ([.comments.nodes[] | entry(\"comment\"; \$T; \" · comment-id \(.databaseId)\")] | join(\"\"))] | join(\"\n\"))")
   f="$out/pr-$n.md"; d="$out/pr-$n.diff"
   c=$(split_counts "$raw" "$f")
-  gh pr diff "$n" > "$d"
+  forge_pr_diff "$n" > "$d"
   printf '{"ok":true,"file":%s,"diff":%s,"comments":%s,"untrusted":%s}\n' "$(pj_json "$f")" "$(pj_json "$d")" "${c% *}" "${c#* }"
 }
 
@@ -74,7 +64,7 @@ cmd_diff() {
       || pj_die $PJ_EXIT_ASK since-unknown "$since is not in the history. Review the full diff."
     git diff "$since..$ref" > "$d"
   else
-    gh pr diff "$pr" > "$d"
+    forge_pr_diff "$pr" > "$d"
   fi
   printf '{"ok":true,"diff":%s,"lines":%s}\n' "$(pj_json "$d")" "$(wc -l < "$d" | tr -d ' ')"
 }

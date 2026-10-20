@@ -17,10 +17,8 @@ pj_cleanup() { rm -rf "$tmp"; }
 
 # Issue body -> $tmp/body (exact), $tmp/block (CR stripped). Returns 1 without a complete block.
 read_block() {
-  local b
-  # gh adds a newline after the body: the "." keeps the real trailing newlines, then goes.
-  b=$(gh issue view "$1" --json body --jq '.body + "."')
-  printf '%s' "${b%.}" > "$tmp/body"
+  pj_need_forge
+  forge_issue_body "$1" "$tmp/body"
   awk -v s="$START" -v e="$END" '{sub(/\r$/, "")} !inb && $0 == s {inb=1; next}
     inb && $0 == e {done=1; exit} inb {print} END {exit !done}' "$tmp/body" > "$tmp/block"
 }
@@ -59,7 +57,7 @@ cmd_set() {
     { cat "$tmp/body"; printf '\n%s\n' "$START"; cat "$tmp/new"; printf '%s\n' "$END"; } > "$tmp/out"
     action=added
   fi
-  gh issue edit "$n" --body-file "$tmp/out" >/dev/null
+  forge_issue_set_body "$n" "$tmp/out"
   printf '{"ok":true,"action":"%s","hash":"%s"}\n' "$action" "$(hash_of "$tmp/new")"
 }
 

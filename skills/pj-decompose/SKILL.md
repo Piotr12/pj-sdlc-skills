@@ -1,6 +1,6 @@
 ---
 name: pj-decompose
-description: Split a spec-ready GitHub issue that is too big for one implementation run into vertical child issues. Each child gets a spec subset, a sub-issue link to the parent, and the spec-ready label. Use when pj-implement says the bite is too big, or when the user asks to split, break down, or decompose an issue.
+description: Split a spec-ready issue that is too big for one implementation run into vertical child issues. Each child gets a spec subset, a link to the parent, and the spec-ready label. Use when pj-implement says the bite is too big, or when the user asks to split, break down, or decompose an issue.
 license: MIT
 metadata:
   version: "0.2.0"
@@ -17,7 +17,7 @@ Split an issue that is too big into child issues.
 ## Rules
 
 - Follow `<pj>/reference/protocol.md`. `<pj>` is the `pj-prep-the-repo` skill folder, next to this folder.
-- Never call `gh` directly. Use the scripts in `<pj>/scripts/`. Post each comment with `comment.sh`.
+- Never call `gh`, `fj`, or the forge API directly. Use the scripts in `.pj/scripts/`. Post each comment with `comment.sh`.
 - Create issues only after the user approves the plan.
 - One level only. A child does not get children.
 - The parent keeps `spec-ready`. `pj-implement` refuses a parent with children.
@@ -25,18 +25,18 @@ Split an issue that is too big into child issues.
 
 ## Steps
 
-1. Run `<pj>/scripts/state.sh issue <parent>`. If `spec-ready` is not in `labels`, stop. Suggest grill.
+1. Run `.pj/scripts/state.sh issue <parent>`. If `spec-ready` is not in `labels`, stop. Suggest grill.
 2. If `children` is more than 0, show the children and stop. Do not make duplicates.
-3. Run `<pj>/scripts/spec.sh hash <parent>`. If `match` is false, stop and suggest grill.
+3. Run `.pj/scripts/spec.sh hash <parent>`. If `match` is false, stop and suggest grill.
 4. Read the parent spec from `issues/<parent>/spec.md` on `attachments`.
 5. Split the work into slices. See Slicing rules.
 6. Show the plan to the user: one line for each slice, with its acceptance criteria. Wait for approval.
-7. For each slice, run `<pj>/scripts/issue.sh child <parent> <title> <body-file>`.
-8. For each child, run `<pj>/scripts/spec.sh hash <child>`. Then run `<pj>/scripts/spec.sh snapshot <child> <hash>`.
+7. For each slice, run `.pj/scripts/issue.sh child <parent> <title> <body-file>`.
+8. For each child, run `.pj/scripts/spec.sh hash <child>`. Then run `.pj/scripts/spec.sh snapshot <child> <hash>`.
 9. Post a comment on the parent with a task list of the children: `- [ ] #12`.
 10. Write one devlog entry.
 
-`issue.sh child` creates the issue, links it as a GitHub sub-issue, and sets `spec-ready`.
+`issue.sh child` creates the issue, links it to the parent (GitHub: sub-issue, Forgejo: the child blocks the parent), and sets `spec-ready`.
 A rerun reuses a child with the same title. The body file holds the full child issue, with the spec block.
 
 ## Slicing rules

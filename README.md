@@ -1,13 +1,13 @@
 # pj SDLC skills
 
-Agent skills that take a GitHub issue from spec to a merged PR.
+Agent skills that take a GitHub or Forgejo issue from spec to a merged PR.
 Version 0.2.0 has ten skills. All of them follow one protocol: `skills/pj-prep-the-repo/reference/protocol.md`.
 
 ## Skills
 
 | Skill | Does |
 |---|---|
-| `pj-prep-the-repo` | Sets up labels, the `attachments` branch, rulesets, `AGENTS.md`, and configs through a PR. |
+| `pj-prep-the-repo` | Sets up labels, the `attachments` branch, rulesets, the scripts, `AGENTS.md`, and configs through a PR. |
 | `pj-grill-for-specs-readiness` | Checks an issue against the Definition of Ready and builds the spec. |
 | `pj-implement` | Implements a `spec-ready` issue and opens a PR. |
 | `pj-review` | Reviews a PR adversarially. |
@@ -18,14 +18,18 @@ Version 0.2.0 has ten skills. All of them follow one protocol: `skills/pj-prep-t
 | `pj-repro` | Reproduces a bug with a failing test before the fix. |
 | `pj-healthcheck` | Checks the repo setup, `attachments`, and `docs/`. It changes nothing. |
 
-The other skills use the scripts in `skills/pj-prep-the-repo/scripts/`. Install all skills together.
+The scripts are in `skills/pj-prep-the-repo/scripts/`. `forge/` holds one adapter for each forge: GitHub and Forgejo.
+`pj-prep-the-repo` copies the scripts and the adapter for the repo to `.pj/scripts/`. The other skills use that copy.
+Install all skills together.
 
-The Claude Code plugin also adds a guard hook. It blocks pushes to `main`, force-pushes, merges, approvals, issue closes, and `gh` writes outside the scripts.
+The Claude Code plugin also adds a guard hook. It blocks pushes to `main`, force-pushes, merges, approvals, issue closes, and `gh`, `fj`, or API writes outside the scripts.
 
 ## Requirements
 
-- A GitHub repo with `main` as the default branch.
-- `gh`, logged in, and git 2.42 or later. Also install `gitleaks`: it scans attachments for secrets.
+- A GitHub or Forgejo repo with `main` as the default branch.
+- GitHub: `gh`, logged in.
+- Forgejo: `curl`, `jq`, and a token with write access to the repo. Put it in `FORGEJO_TOKEN`, or run `fj auth add-key <host>`.
+- git 2.42 or later. Also install `gitleaks`: it scans attachments for secrets.
 - Bash 3.2 or later. The scripts run on macOS and Linux.
 - The rules block targets Web (TypeScript) and Flutter projects.
 
@@ -48,12 +52,13 @@ Manual: copy all `skills/pj-*` folders into the skills folder of your agent.
 
 ## Use
 
-1. Install `gh` and log in. Use `git` 2.42 or later.
-2. Open the target repo. It must have a GitHub remote.
+1. Install the tools for the forge and log in. Use `git` 2.42 or later.
+2. Open the target repo. It must have a GitHub or Forgejo remote named `origin`.
 3. Ask the agent to prepare the repo for the pj skills.
 4. Review and merge the PR that the agent opens.
 
-For a team, give the agent its own GitHub identity. See Identity in the protocol.
+For a team, give the agent its own identity on the forge. See Identity in the protocol.
+The protocol also lists what differs on Forgejo. See Forges.
 
 ## Design
 
@@ -63,8 +68,8 @@ Each skill has its `SKILL.md`. The shared rules are in the protocol.
 ## Tests
 
 Run `bash tests/prep-scripts.sh`.
-It replays the prep scripts against temporary repos with a fake `gh`.
-It needs no network and no GitHub account.
+It replays the scripts against temporary repos with a fake `gh` and a fake Forgejo API.
+It needs no network and no account.
 
 ## Writing rules
 

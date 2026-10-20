@@ -10,7 +10,7 @@
     {
       "name": "pj-sdlc-skills",
       "source": "./",
-      "description": "pj SDLC skills: prepare a GitHub repo, grill issues into specs, implement, review, and address reviews, with a guard hook."
+      "description": "pj SDLC skills: prepare a GitHub or Forgejo repo, grill issues into specs, implement, review, and address reviews, with a guard hook."
     }
   ]
 }

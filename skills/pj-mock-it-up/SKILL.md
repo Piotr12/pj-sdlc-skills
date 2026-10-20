@@ -1,6 +1,6 @@
 ---
 name: pj-mock-it-up
-description: Make mid-fidelity HTML mockup variants for a UI change in a GitHub issue, render them to PNG sheets for each viewport, store them on the attachments branch, and show them in an issue comment. Supports a variant count, a creative objective per variant, and mutations of a variant. Use when the user asks for a mockup, wireframe, UI variants, or design options for an issue.
+description: Make mid-fidelity HTML mockup variants for a UI change in an issue, render them to PNG sheets for each viewport, store them on the attachments branch, and show them in an issue comment. Supports a variant count, a creative objective per variant, and mutations of a variant. Use when the user asks for a mockup, wireframe, UI variants, or design options for an issue.
 license: MIT
 metadata:
   version: "0.2.0"
@@ -17,7 +17,7 @@ Make mockup variants for a UI change in an issue.
 ## Rules
 
 - Follow `<pj>/reference/protocol.md`. `<pj>` is the `pj-prep-the-repo` skill folder, next to this folder.
-- Never call `gh` directly. Use the scripts in `<pj>/scripts/`. Post each comment with `comment.sh`.
+- Never call `gh`, `fj`, or the forge API directly. Use the scripts in `.pj/scripts/`. Post each comment with `comment.sh`.
 - Make 2 variants by default. Make a different number if the user asks.
 - Each run adds new variants: `v1`, `v2`, then `v3`, and so on. Never overwrite a variant.
 - To mutate, the user names a variant and gives guidance. The result is a new variant.
@@ -27,7 +27,7 @@ Make mockup variants for a UI change in an issue.
 
 ## Steps
 
-1. Run `<pj>/scripts/state.sh issue <n>`. Read the issue, the spec block, and the existing mockups on `attachments`.
+1. Run `.pj/scripts/state.sh issue <n>`. Read the issue, the spec block, and the existing mockups on `attachments`.
 2. Find the screens. For each screen, find the states that matter: empty, loading, error, filled.
 3. Find the next free variant number in `issues/<n>/mockups/` on `attachments`.
 4. Start one subagent for each variant. Give it the spec, the screens and states, and its objective.
@@ -35,7 +35,7 @@ Make mockup variants for a UI change in an issue.
 6. Check each HTML file against the anti-patterns. Fix each hit.
 7. Render each HTML file to one PNG for each viewport. See Render.
 8. For each screen and state, make one sheet PNG with all viewports side by side.
-9. Write the files: `<pj>/scripts/attach.sh -m "docs(mockup): #<n> vN" issues/<n>/mockups/vN <folder>`.
+9. Write the files: `.pj/scripts/attach.sh -m "docs(mockup): #<n> vN" issues/<n>/mockups/vN <folder>`. Use its `urls` as links.
 10. Post one comment on the issue. For each variant, show the sheets inline and link the HTML files.
 11. Write one devlog entry.
 

@@ -64,11 +64,12 @@ pj_default_branch() {
 # Stop before any change unless origin exists, has commits, and uses main.
 pj_require_main() {
   local d
-  git remote get-url origin >/dev/null 2>&1 || pj_die $PJ_EXIT_ERROR no-remote "Add a GitHub remote named origin."
+  pj_need_forge
+  git remote get-url origin >/dev/null 2>&1 || pj_die $PJ_EXIT_ERROR no-remote "Add a remote named origin."
   d=$(pj_default_branch) || pj_die $PJ_EXIT_ERROR origin-unreachable "git ls-remote origin failed."
   [ -n "$d" ] || pj_die $PJ_EXIT_EMPTY empty-origin "origin has no commits. Push a first commit to $PJ_MAIN."
   [ "$d" = "$PJ_MAIN" ] || pj_die $PJ_EXIT_ASK default-branch-not-main \
-    "pj needs $PJ_MAIN as the default branch. origin uses $d. Rename it on GitHub, or stop."
+    "pj needs $PJ_MAIN as the default branch. origin uses $d. Rename it on the forge, or stop."
   [ "$(git rev-parse --is-shallow-repository)" = false ] || pj_die $PJ_EXIT_ASK shallow-clone \
     "Run: git fetch --unshallow origin"
 }
@@ -115,8 +116,7 @@ pj_exclude_worktrees() {
 
 # "<number> <state> <branch> <url> <isCrossRepository> <author>" for each PR.
 pj_prs() {
-  gh pr list --state all --limit 200 --json number,state,headRefName,url,isCrossRepository,author \
-    --jq '.[] | "\(.number) \(.state) \(.headRefName) \(.url) \(.isCrossRepository) \(.author.login)"'
+  forge_pr_list all 200 '.[] | "\(.number) \(.state) \(.headRefName) \(.url) \(.isCrossRepository) \(.author.login)"'
 }
 
 pj_num() { case "${1:-}" in ""|*[!0-9]*) pj_die $PJ_EXIT_USAGE bad-number "${1:-}" ;; esac; }
@@ -169,4 +169,36 @@ pj_trusted_jq() {
     out="$out,\"$a\""
   done <<< "$(echo "$raw" | tr ',' '\n' | tr -d '" ')"
   echo "[${out#,}]"
+}
+
+# The forge adapter: forge.sh in a copy made by prep.sh scripts, else forge/<name>.sh.
+# Name: PJ_FORGE, else git config pj.forge, else .pj/scripts/forge.sh on origin/main,
+# else the origin host. Prints github, forgejo, or nothing.
+PJ_DIR=$(cd "$(dirname "$0")" && pwd)
+PJ_FORGES="github forgejo"
+pj_forge_name() {
+  local n="${PJ_FORGE:-}" url host
+  [ -n "$n" ] || n=$(git config --get pj.forge 2>/dev/null || true)
+  [ -n "$n" ] || n=$( (git show "origin/$PJ_MAIN:.pj/scripts/forge.sh" 2>/dev/null || true) \
+    | sed -n 's/^PJ_FORGE_NAME=\([a-z]*\)$/\1/p' | head -1)
+  if [ -z "$n" ]; then
+    url=$(git remote get-url origin 2>/dev/null || true)
+    host=$(pj_url_host "$url")
+    case "$host" in github.com) n=github ;; codeberg.org) n=forgejo ;; esac
+  fi
+  case " $PJ_FORGES " in *" $n "*) echo "$n" ;; esac
+}
+pj_url_host() { # <remote url> -> host without user and port
+  local r=$1
+  case "$r" in *://*) r=${r#*://} ;; *@*:*) r=${r#*@}; r=${r%%:*} ;; *) return 0 ;; esac
+  r=${r%%/*}; r=${r#*@}; echo "${r%%:*}"
+}
+if [ -f "$PJ_DIR/forge.sh" ]; then PJ_FORGE_FILE="$PJ_DIR/forge.sh"
+else PJ_FORGE_FILE="$PJ_DIR/forge/$(pj_forge_name).sh"; fi
+PJ_FORGE_NAME=""
+# shellcheck source=/dev/null
+[ -f "$PJ_FORGE_FILE" ] && . "$PJ_FORGE_FILE"
+pj_need_forge() {
+  [ -n "$PJ_FORGE_NAME" ] || pj_die $PJ_EXIT_ASK forge-unknown \
+    "Cannot tell the forge of origin. Run: git config pj.forge github|forgejo"
 }
