@@ -415,6 +415,8 @@ ok "marker format"            test "$(jv .marker)" = "<!-- pj:v1 {\"skill\":\"pj
 ok "run id format"            sh -c "echo '$(jv .run)' | grep -Eq '^[0-9]{8}-[0-9]{4}-[0-9a-f]{4}$'"
 run "$S/marker.sh" pj-review approve; ok "bad event: exit 2" test $rc -eq 2
 run "$S/marker.sh" pj-review reply 'x=a -->'; ok "value with --> refused" test $rc -eq 2
+LC_ALL=en_US.UTF-8 run "$S/marker.sh" pj-Review review; ok "en_US: uppercase skill refused" test $rc -eq 2
+LC_ALL=en_US.UTF-8 run "$S/marker.sh" pj-review review run=R1; ok "en_US: uppercase run refused" test $rc -eq 2
 
 echo "spec"
 new_repo spec; "$S/prep.sh" attachments >/dev/null
@@ -544,6 +546,7 @@ mkdir -p .pj; echo '{"trustedAssociations": ["OWNER"]}' > .pj/config.json
 run "$S/state.sh" issue 5;    ok "config narrows trust" sh -c "test '$(jv '.answers | length')' = 0 && test '$(jv '[.untrusted[].author] | join(",")')' = eve,max"
 echo '{"trustedAssociations": ["OWNER", "evil"]}' > .pj/config.json
 run "$S/state.sh" issue 5;    ok "bad trust config: exit 3" test $rc -eq 3
+LC_ALL=en_US.UTF-8 run "$S/state.sh" issue 5; ok "en_US: bad trust config: exit 3" test $rc -eq 3
 rm -rf .pj
 R=$(mark pj-review review round=1); P=$(mark pj-address-review reply)
 jq -n --arg r "$R" --arg p "$P" '{data: {repository: {pullRequest: {number: 3, state: "OPEN", isDraft: false,

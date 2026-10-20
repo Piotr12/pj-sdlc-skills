@@ -3,6 +3,9 @@
 
 set -euo pipefail
 
+# Byte-wise ranges in case patterns and regexes. In other locales, bash 3.2 lets [A-Z] match "e".
+export LC_ALL=C
+
 # Bash seeds RANDOM from the clock: runs started in the same second would match.
 RANDOM=$$
 
