@@ -6,35 +6,7 @@
 <title>pj SDLC skills</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  .diagram { overflow-x: auto; }
-  .diagram svg { width: 100%; min-width: 720px; height: auto; display: block; }
-
-  svg text { font-family: system-ui, sans-serif; fill: var(--fg); }
-  svg .mono { font-family: ui-monospace, monospace; font-size: 12px; }
-  svg .small { font-size: 11px; fill: var(--muted); }
-  svg .human { font-size: 12px; font-style: italic; fill: var(--muted); }
-  svg .edge { stroke: var(--line); stroke-width: 1.5; fill: none; }
-  svg .link { stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 3 3; fill: none; }
-  svg .suggest { stroke: var(--input-st); stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; fill: none; }
-  svg .suggest-head { fill: var(--input-st); }
-  svg .why { font-size: 11px; fill: var(--input-st); }
-  svg .arrowhead { fill: var(--line); }
-  svg .chip rect { fill: var(--chip-bg); }
-  svg .chip text { fill: var(--chip-fg); }
-  svg .opt rect { fill: var(--bg); stroke: var(--fg); stroke-dasharray: 4 3; }
-  svg .group { fill: none; stroke: var(--border); stroke-width: 1.5; }
-  svg .someday { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 6 4; }
-  svg .later rect { fill: var(--border); }
-  svg .later text { fill: var(--muted); }
-  svg a { cursor: pointer; }
-  svg a:hover rect { stroke: var(--link); stroke-width: 2; }
-  svg .st rect { stroke-width: 2; }
-  svg .st .name { font-weight: 600; font-size: 14px; }
-  .fresh rect { fill: var(--fresh-bg); stroke: var(--fresh-st); }
-  .input rect { fill: var(--input-bg); stroke: var(--input-st); }
-  .ready rect { fill: var(--ready-bg); stroke: var(--ready-st); }
-  .impl  rect { fill: var(--impl-bg);  stroke: var(--impl-st); }
-  .done  rect { fill: var(--done-bg);  stroke: var(--done-st); }
+  .diagram object, .diagram img { display: block; width: 100%; max-width: 880px; height: auto; aspect-ratio: 880 / 470; }
 </style>
 </head>
 <body>
@@ -42,103 +14,9 @@
 <h1>pj SDLC skills</h1>
 <p class="lead">Version 0.2.0. Click a skill to open its <code>SKILL.md</code>.</p>
 <div class="diagram">
-<svg viewBox="0 0 1300 510" role="img" aria-label="Issue state flow with skills">
-  <defs>
-    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path class="arrowhead" d="M0,0 L10,5 L0,10 z"/>
-    </marker>
-    <marker id="sug" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path class="suggest-head" d="M0,0 L10,5 L0,10 z"/>
-    </marker>
-  </defs>
-
-  <!-- edges -->
-  <line class="edge" x1="170" y1="228" x2="498" y2="228" marker-end="url(#arr)"/>
-  <line class="edge" x1="310" y1="216" x2="310" y2="98" marker-end="url(#arr)"/>
-  <line class="edge" x1="360" y1="96" x2="360" y2="214" marker-end="url(#arr)"/>
-  <line class="edge" x1="650" y1="228" x2="858" y2="228" marker-end="url(#arr)"/>
-  <line class="edge" x1="1010" y1="228" x2="1128" y2="228" marker-end="url(#arr)"/>
-  <text class="human" x="302" y="160" text-anchor="end">questions</text>
-  <text class="human" x="368" y="160">answered</text>
-  <text class="human" x="1069" y="218" text-anchor="middle">human merges</text>
-
-  <!-- states -->
-  <g class="st fresh"><rect x="20" y="200" width="150" height="56" rx="10"/>
-    <text class="name" x="95" y="224" text-anchor="middle">Fresh</text>
-    <text class="small" x="95" y="242" text-anchor="middle">no label, no PR</text></g>
-  <g class="st input"><rect x="260" y="40" width="150" height="56" rx="10"/>
-    <text class="name" x="335" y="64" text-anchor="middle">needs-input</text>
-    <text class="small" x="335" y="82" text-anchor="middle">label</text></g>
-  <g class="st ready"><rect x="500" y="200" width="150" height="56" rx="10"/>
-    <text class="name" x="575" y="224" text-anchor="middle">spec-ready</text>
-    <text class="small" x="575" y="242" text-anchor="middle">label</text></g>
-  <g class="st impl"><rect x="860" y="200" width="150" height="56" rx="10"/>
-    <text class="name" x="935" y="224" text-anchor="middle">Implemented</text>
-    <text class="small" x="935" y="242" text-anchor="middle">PR linked</text></g>
-  <g class="st done"><rect x="1130" y="200" width="150" height="56" rx="10"/>
-    <text class="name" x="1205" y="224" text-anchor="middle">Done</text>
-    <text class="small" x="1205" y="242" text-anchor="middle">closed</text></g>
-
-  <!-- skills on edges -->
-  <a href="../skills/pj-grill-for-specs-readiness/SKILL.md"><g class="chip"><rect x="224" y="216" width="222" height="24" rx="12"/>
-    <text class="mono" x="335" y="232" text-anchor="middle">pj-grill-for-specs-readiness</text></g></a>
-  <a href="../skills/pj-implement/SKILL.md"><g class="chip"><rect x="702" y="216" width="106" height="24" rx="12"/>
-    <text class="mono" x="755" y="232" text-anchor="middle">pj-implement</text></g></a>
-  <line class="link" x1="755" y1="184" x2="755" y2="216"/>
-  <a href="../skills/pj-repro/SKILL.md"><g class="opt"><rect x="691" y="160" width="128" height="24" rx="12"/>
-    <text class="mono" x="755" y="176" text-anchor="middle">pj-repro (bugs)</text></g></a>
-
-  <!-- optional skills on states -->
-  <line class="link" x1="95" y1="256" x2="95" y2="290"/>
-  <a href="../skills/pj-mock-it-up/SKILL.md"><g class="opt"><rect x="38" y="290" width="114" height="24" rx="12"/>
-    <text class="mono" x="95" y="306" text-anchor="middle">pj-mock-it-up</text></g></a>
-  <text class="small" x="95" y="330" text-anchor="middle">mockup into attachments</text>
-
-  <line class="link" x1="575" y1="256" x2="575" y2="290"/>
-  <a href="../skills/pj-decompose/SKILL.md"><g class="opt"><rect x="522" y="290" width="106" height="24" rx="12"/>
-    <text class="mono" x="575" y="306" text-anchor="middle">pj-decompose</text></g></a>
-  <text class="small" x="575" y="330" text-anchor="middle">child issues under the parent</text>
-
-  <!-- suggestions -->
-  <path class="suggest" d="M250 240 Q200 290 156 301" marker-end="url(#sug)"/>
-  <text class="why" x="212" y="292">UI change, no mockup</text>
-  <path class="suggest" d="M720 240 Q680 290 632 301" marker-end="url(#sug)"/>
-  <text class="why" x="690" y="292">bite too big</text>
-
-  <!-- PR loop -->
-  <line class="link" x1="935" y1="256" x2="935" y2="290"/>
-  <rect class="group" x="845" y="290" width="180" height="104" rx="10"/>
-  <text class="small" x="935" y="310" text-anchor="middle">PR loop, any order</text>
-  <a href="../skills/pj-review/SKILL.md"><g class="chip"><rect x="855" y="320" width="160" height="24" rx="12"/>
-    <text class="mono" x="935" y="336" text-anchor="middle">pj-review</text></g></a>
-  <a href="../skills/pj-address-review/SKILL.md"><g class="chip"><rect x="855" y="352" width="160" height="24" rx="12"/>
-    <text class="mono" x="935" y="368" text-anchor="middle">pj-address-review</text></g></a>
-
-  <!-- repo-level -->
-  <line x1="20" y1="424" x2="1280" y2="424" stroke="var(--border)" stroke-width="1.5"/>
-  <text class="small" x="20" y="466">Repo level, not in the issue flow:</text>
-  <a href="../skills/pj-prep-the-repo/SKILL.md"><g class="chip"><rect x="220" y="450" width="136" height="24" rx="12"/>
-    <text class="mono" x="288" y="466" text-anchor="middle">pj-prep-the-repo</text></g></a>
-  <text class="small" x="288" y="494" text-anchor="middle">labels, AGENTS.md, attachments</text>
-  <a href="../skills/pj-healthcheck/SKILL.md"><g class="chip"><rect x="396" y="450" width="122" height="24" rx="12"/>
-    <text class="mono" x="457" y="466" text-anchor="middle">pj-healthcheck</text></g></a>
-  <text class="small" x="457" y="494" text-anchor="middle">setup, attachments, docs</text>
-  <a href="../skills/pj-next-round/SKILL.md"><g class="chip"><rect x="542" y="450" width="114" height="24" rx="12"/>
-    <text class="mono" x="599" y="466" text-anchor="middle">pj-next-round</text></g></a>
-  <text class="small" x="599" y="494" text-anchor="middle">what to run next</text>
-
-  <!-- someday, maybe -->
-  <rect class="someday" x="680" y="440" width="600" height="44" rx="10"/>
-  <text class="small" x="696" y="466">someday, maybe</text>
-  <g class="later"><rect x="800" y="450" width="92" height="24" rx="12"/>
-    <text class="mono" x="846" y="466" text-anchor="middle">pj-upgrade</text></g>
-  <g class="later"><rect x="904" y="450" width="92" height="24" rx="12"/>
-    <text class="mono" x="950" y="466" text-anchor="middle">pj-release</text></g>
-  <g class="later"><rect x="1008" y="450" width="86" height="24" rx="12"/>
-    <text class="mono" x="1051" y="466" text-anchor="middle">pj-fix-ci</text></g>
-  <g class="later"><rect x="1106" y="450" width="154" height="24" rx="12"/>
-    <text class="mono" x="1183" y="466" text-anchor="middle">pj-resolve-conflict</text></g>
-</svg>
+<object data="flow.svg" type="image/svg+xml" aria-label="pj issue flow. A Fresh issue goes to pj-grill-for-specs-readiness. Grill asks questions with the needs-input label. A human answers and signs off the spec. For a UI change, pj-mock-it-up makes mockups, and a human picks one. Then the issue is spec-ready. pj-implement opens a PR, after pj-repro for a bug. pj-decompose splits an issue that is too big. With a PR ready for review, the issue has the Implemented state. pj-review and pj-address-review loop on the PR. A human merges the PR, and the issue gets the Done state. pj-prep-the-repo runs once for each repo. pj-next-round and pj-healthcheck change nothing.">
+  <img src="flow.svg" alt="pj issue flow. A Fresh issue goes to pj-grill-for-specs-readiness. Grill asks questions with the needs-input label. A human answers and signs off the spec. For a UI change, pj-mock-it-up makes mockups, and a human picks one. Then the issue is spec-ready. pj-implement opens a PR, after pj-repro for a bug. pj-decompose splits an issue that is too big. With a PR ready for review, the issue has the Implemented state. pj-review and pj-address-review loop on the PR. A human merges the PR, and the issue gets the Done state. pj-prep-the-repo runs once for each repo. pj-next-round and pj-healthcheck change nothing.">
+</object>
 </div>
 
 <h2>Protocol</h2>
