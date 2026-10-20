@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="1100" viewBox="0 0 880 1100" role="img" aria-labelledby="t d">
+  <title id="t">pj SDLC skills: issue flow</title>
+  <desc id="d">An issue moves top to bottom: Fresh, then needs-input and spec-ready, then Implemented with a PR, then Done. Agent skills on the right act on each step: pj-prep-the-repo once per repo, pj-grill-for-specs-readiness with pj-mock-it-up, pj-repro, pj-implement, pj-decompose, and the PR loop of pj-review and pj-address-review. Human wait points on the left: answer the questions, sign off the spec, pick a mockup, review and merge the PR. pj-next-round and pj-healthcheck are read-only and run any time.</desc>
+  <style>
+    svg {
+      --ink: #1f2328; --muted: #59636e; --surface: #ffffff;
+      --amber: #9a6700; --amber-tint: #fff8c5;
+      --green: #1a7f37; --green-tint: #dafbe1;
+    }
+    @media (prefers-color-scheme: dark) {
+      svg {
+        --ink: #e6edf3; --muted: #9198a1; --surface: #161b22;
+        --amber: #d29922; --amber-tint: #3b2e05;
+        --green: #3fb950; --green-tint: #12261e;
+      }
+    }
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 15px; fill: var(--muted); }
+    .head { font-weight: 600; letter-spacing: 0.08em; }
+    .human { fill: var(--amber); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .skill { font-size: 19px; fill: var(--ink); }
+    .state { font-size: 24px; font-weight: 600; fill: var(--ink); }
+    .spine { stroke: var(--ink); stroke-width: 5; fill: none; }
+    .thin { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+    .wait { stroke: var(--amber); stroke-width: 1.5; fill: none; }
+    .box { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+    .input { fill: var(--amber-tint); stroke: var(--amber); stroke-width: 2; }
+    .ready { fill: var(--green-tint); stroke: var(--green); stroke-width: 2; }
+    .chip { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+    .opt { fill: var(--surface); stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .tip { fill: var(--ink); }
+    .tip-thin { fill: var(--muted); }
+    .dot { fill: var(--amber); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="3" refY="5" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" orient="auto">
+      <path class="tip" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path class="tip-thin" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <!-- column heads -->
+  <text class="head human" x="24" y="30">HUMAN</text>
+  <text class="head" x="360" y="30" text-anchor="middle">ISSUE</text>
+  <text class="head" x="496" y="30">AGENT SKILLS</text>
+
+  <!-- once per repo -->
+  <path class="thin" d="M360 124 V70 H496" stroke-dasharray="2 4"/>
+  <rect class="chip" x="496" y="52" width="207" height="36" rx="6"/>
+  <text class="mono skill" x="508" y="76">pj-prep-the-repo</text>
+  <text x="715" y="76">once per repo</text>
+
+  <!-- spine: the issue -->
+  <line class="spine" x1="360" y1="184" x2="360" y2="380" marker-end="url(#a)"/>
+  <line class="spine" x1="360" y1="452" x2="360" y2="632" marker-end="url(#a)"/>
+  <line class="spine" x1="360" y1="704" x2="360" y2="868" marker-end="url(#a)"/>
+
+  <!-- Fresh -->
+  <rect class="box" x="250" y="124" width="220" height="60" rx="8"/>
+  <text class="state" x="360" y="153" text-anchor="middle">Fresh</text>
+  <text x="360" y="175" text-anchor="middle">no label, no PR</text>
+
+  <!-- step 1: grill -->
+  <line class="thin" x1="363" y1="224" x2="496" y2="224"/>
+  <path class="thin" d="M510 242 V278 H520"/>
+  <rect class="chip" x="496" y="206" width="344" height="36" rx="6"/>
+  <text class="mono skill" x="508" y="230">pj-grill-for-specs-readiness</text>
+  <rect class="opt" x="520" y="260" width="173" height="36" rx="6"/>
+  <text class="mono skill" x="532" y="284">pj-mock-it-up</text>
+  <text x="520" y="320">for a UI change without a mockup</text>
+
+  <line class="thin" x1="356" y1="252" x2="228" y2="252" marker-end="url(#s)"/>
+  <line class="thin" x1="228" y1="280" x2="356" y2="280" marker-end="url(#s)"/>
+  <text x="292" y="244" text-anchor="middle">questions</text>
+  <text x="292" y="300" text-anchor="middle">answered</text>
+  <rect class="input" x="24" y="236" width="200" height="60" rx="30"/>
+  <text class="mono state" x="124" y="265" text-anchor="middle">needs-input</text>
+  <text x="124" y="287" text-anchor="middle">label</text>
+  <text class="human" x="24" y="326">A human answers the questions,</text>
+  <text class="human" x="24" y="346">signs off the spec,</text>
+  <text class="human" x="24" y="366">and picks a mockup.</text>
+
+  <!-- spec-ready -->
+  <rect class="ready" x="250" y="392" width="220" height="60" rx="30"/>
+  <text class="mono state" x="360" y="421" text-anchor="middle">spec-ready</text>
+  <text x="360" y="443" text-anchor="middle">label, signed off</text>
+
+  <!-- step 2: implement -->
+  <path class="thin" d="M520 490 H510 V598 H520"/>
+  <line class="thin" x1="363" y1="544" x2="496" y2="544"/>
+  <rect class="opt" x="520" y="472" width="116" height="36" rx="6"/>
+  <text class="mono skill" x="532" y="496">pj-repro</text>
+  <text x="648" y="495">bugs: failing test first</text>
+  <rect class="chip" x="496" y="526" width="161" height="36" rx="6"/>
+  <text class="mono skill" x="508" y="550">pj-implement</text>
+  <rect class="opt" x="520" y="580" width="161" height="36" rx="6"/>
+  <text class="mono skill" x="532" y="604">pj-decompose</text>
+  <text x="693" y="603">bite too big</text>
+  <text x="520" y="640">child issues, each spec-ready</text>
+
+  <!-- Implemented -->
+  <rect class="box" x="250" y="644" width="220" height="60" rx="8"/>
+  <text class="state" x="360" y="673" text-anchor="middle">Implemented</text>
+  <text x="360" y="695" text-anchor="middle">PR ready for review</text>
+
+  <!-- step 3: PR loop -->
+  <line class="thin" x1="363" y1="744" x2="496" y2="744"/>
+  <rect class="chip" x="496" y="726" width="127" height="36" rx="6"/>
+  <text class="mono skill" x="508" y="750">pj-review</text>
+  <rect class="chip" x="496" y="778" width="218" height="36" rx="6"/>
+  <text class="mono skill" x="508" y="802">pj-address-review</text>
+  <path class="thin" d="M629 744 C780 744 790 796 720 796" marker-start="url(#s)" marker-end="url(#s)"/>
+  <text x="776" y="775">any order</text>
+
+  <line class="wait" x1="176" y1="784" x2="355" y2="784"/>
+  <circle class="dot" cx="360" cy="784" r="7"/>
+  <text class="human" x="24" y="779">A human reviews</text>
+  <text class="human" x="24" y="799">and merges the PR.</text>
+
+  <!-- Done -->
+  <rect class="box" x="250" y="880" width="220" height="60" rx="8"/>
+  <text class="state" x="360" y="909" text-anchor="middle">Done</text>
+  <text x="360" y="931" text-anchor="middle">issue closed</text>
+
+  <!-- any time, read-only -->
+  <line class="thin" x1="24" y1="972" x2="856" y2="972" stroke-width="1"/>
+  <text class="head" x="24" y="1004">ANY TIME, READ-ONLY</text>
+  <rect class="chip" x="24" y="1020" width="173" height="36" rx="6"/>
+  <text class="mono skill" x="36" y="1044">pj-next-round</text>
+  <text x="24" y="1082">what to run next, open human actions</text>
+  <rect class="chip" x="452" y="1020" width="184" height="36" rx="6"/>
+  <text class="mono skill" x="464" y="1044">pj-healthcheck</text>
+  <text x="452" y="1082">setup, attachments, docs drift</text>
+</svg>

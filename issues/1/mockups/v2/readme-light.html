@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>README mockup v2 light</title>
+<style>
+:root { --bg:#ffffff; --fg:#1f2328; --muted:#59636e; --border:#d1d9e0; --code:#eff2f5; --chrome:#f6f8fa; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0d1117; --fg:#f0f6fc; --muted:#9198a1; --border:#3d444d; --code:#262c36; --chrome:#151b23; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--chrome); color:var(--fg); font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif; }
+.wrap { max-width: 920px; margin: 24px auto; padding: 0 16px; }
+.box { background:var(--bg); border:1px solid var(--border); border-radius:6px; }
+.bar { padding:8px 16px; border-bottom:1px solid var(--border); font-size:14px; font-weight:600; }
+article { padding:32px; }
+h1 { font-size:2em; border-bottom:1px solid var(--border); padding-bottom:.3em; margin:0 0 16px; font-weight:600; }
+h2 { font-size:1.5em; border-bottom:1px solid var(--border); padding-bottom:.3em; margin:24px 0 16px; font-weight:600; }
+p { margin:0 0 16px; }
+code { background:var(--code); padding:.2em .4em; border-radius:6px; font:85% ui-monospace,SFMono-Regular,Menlo,monospace; }
+img { max-width:100%; height:auto; display:block; }
+table { border-collapse:collapse; display:block; overflow:auto; }
+td, th { border:1px solid var(--border); padding:6px 13px; text-align:left; }
+@media (max-width: 600px) { .wrap { margin:0; padding:0; } .box { border-radius:0; border-left:0; border-right:0; } article { padding:16px; } }
+</style></head>
+<body><div class="wrap"><div class="box"><div class="bar">README.md</div><article>
+<h1>pj SDLC skills</h1>
+<p>Agent skills that take a GitHub or Forgejo issue from spec to a merged PR.
+Version 0.2.0 has ten skills. All of them follow one protocol: <code>skills/pj-prep-the-repo/reference/protocol.md</code>.</p>
+<p><img src="flow.svg" alt="Issue flow, top to bottom: pj-prep-the-repo sets up the repo once; a Fresh issue goes through pj-grill-for-specs-readiness (with pj-mock-it-up for a UI change) to needs-input, where a human answers, signs off, and picks a mockup, and then to spec-ready; pj-repro, pj-implement, or pj-decompose take it to Implemented with a PR; pj-review and pj-address-review loop until a human merges, and the issue is Done. pj-next-round and pj-healthcheck are read-only and run any time."></p>
+<h2>Skills</h2>
+<table><tr><th>Skill</th><th>Does</th></tr>
+<tr><td><code>pj-prep-the-repo</code></td><td>Sets up labels, the <code>attachments</code> branch, rulesets, the scripts, <code>AGENTS.md</code>, and configs through a PR.</td></tr>
+<tr><td><code>pj-grill-for-specs-readiness</code></td><td>Checks an issue against the Definition of Ready and builds the spec.</td></tr>
+<tr><td><code>pj-implement</code></td><td>Implements a <code>spec-ready</code> issue and opens a PR.</td></tr>
+</table>
+</article></div></div></body></html>
