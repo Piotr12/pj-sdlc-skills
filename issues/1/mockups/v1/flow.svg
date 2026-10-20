@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="470" viewBox="0 0 880 470" role="img" aria-labelledby="t d">
+  <title id="t">pj SDLC skills: issue flow</title>
+  <desc id="d">An issue goes from Fresh to needs-input and spec-ready with pj-grill-for-specs-readiness, which can suggest pj-mock-it-up. pj-implement, after pj-repro for bugs, takes a spec-ready issue to Implemented with a PR, or suggests pj-decompose when the bite is too big. pj-review and pj-address-review loop on the PR until a human merges it and the issue is Done. A human answers questions, signs off the spec, picks a mockup, and reviews and merges the PR. pj-prep-the-repo runs once per repo; pj-healthcheck and pj-next-round are read-only.</desc>
+  <style>
+    svg {
+      --bg: #ffffff; --ink: #111827; --line: #6b7280; --rule: #e5e7eb;
+      --chip-bg: #0f172a; --chip-fg: #f8fafc;
+      --human: #be123c; --suggest: #b45309;
+      --fresh-bg: #f3f4f6; --fresh-st: #6b7280;
+      --input-bg: #fef3c7; --input-st: #b45309;
+      --ready-bg: #dcfce7; --ready-st: #15803d;
+      --impl-bg: #dbeafe;  --impl-st: #1d4ed8;
+      --done-bg: #ede9fe;  --done-st: #6d28d9;
+    }
+    @media (prefers-color-scheme: dark) {
+      svg {
+        --bg: #0d1117; --ink: #e6edf3; --line: #8b949e; --rule: #30363d;
+        --chip-bg: #e2e8f0; --chip-fg: #0f172a;
+        --human: #fb7185; --suggest: #fbbf24;
+        --fresh-bg: #1f2937; --fresh-st: #9ca3af;
+        --input-bg: #451a03; --input-st: #fbbf24;
+        --ready-bg: #052e16; --ready-st: #4ade80;
+        --impl-bg: #172554;  --impl-st: #60a5fa;
+        --done-bg: #2e1065;  --done-st: #a78bfa;
+      }
+    }
+    .panel { fill: var(--bg); }
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 12px; fill: var(--ink); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .muted { fill: var(--line); }
+    .human { font-style: italic; fill: var(--human); }
+    .why { fill: var(--suggest); }
+    .edge { stroke: var(--line); stroke-width: 1.5; fill: none; }
+    .link { stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 3 3; fill: none; }
+    .suggest { stroke: var(--suggest); stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; fill: none; }
+    .head { fill: var(--line); }
+    .suggest-head { fill: var(--suggest); }
+    .chip rect { fill: var(--chip-bg); }
+    .chip text { fill: var(--chip-fg); }
+    .opt rect { fill: var(--bg); stroke: var(--ink); stroke-dasharray: 4 3; }
+    .group { fill: none; stroke: var(--rule); stroke-width: 1.5; }
+    .rule { stroke: var(--rule); stroke-width: 1.5; }
+    .st rect { stroke-width: 2; }
+    .st .name { font-size: 15px; font-weight: 600; }
+    .fresh rect { fill: var(--fresh-bg); stroke: var(--fresh-st); }
+    .input rect { fill: var(--input-bg); stroke: var(--input-st); }
+    .ready rect { fill: var(--ready-bg); stroke: var(--ready-st); }
+    .impl rect  { fill: var(--impl-bg);  stroke: var(--impl-st); }
+    .done rect  { fill: var(--done-bg);  stroke: var(--done-st); }
+  </style>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path class="head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="sug" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path class="suggest-head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <rect class="panel" x="0" y="0" width="880" height="470" rx="12"/>
+
+  <!-- edges of the main row (y 196) and the needs-input loop -->
+  <line class="edge" x1="120" y1="196" x2="360" y2="196" marker-end="url(#arr)"/>
+  <line class="edge" x1="213" y1="184" x2="213" y2="75" marker-end="url(#arr)"/>
+  <line class="edge" x1="269" y1="73" x2="269" y2="182" marker-end="url(#arr)"/>
+  <line class="edge" x1="468" y1="196" x2="602" y2="196" marker-end="url(#arr)"/>
+  <line class="edge" x1="712" y1="196" x2="798" y2="196" marker-end="url(#arr)"/>
+  <text class="muted" x="205" y="132" text-anchor="end">questions</text>
+  <text class="human" x="277" y="124">human answers</text>
+  <text class="human" x="277" y="140">and signs off</text>
+  <text class="human" x="756" y="170" text-anchor="middle">human reviews</text>
+  <text class="human" x="756" y="186" text-anchor="middle">and merges</text>
+
+  <!-- states -->
+  <g class="st fresh"><rect x="12" y="168" width="108" height="56" rx="10"/>
+    <text class="name" x="66" y="192" text-anchor="middle">Fresh</text>
+    <text x="66" y="212" text-anchor="middle">no label, no PR</text></g>
+  <g class="st input"><rect x="181" y="20" width="120" height="52" rx="10"/>
+    <text class="name" x="241" y="42" text-anchor="middle">needs-input</text>
+    <text x="241" y="61" text-anchor="middle">label</text></g>
+  <g class="st ready"><rect x="362" y="168" width="106" height="56" rx="10"/>
+    <text class="name" x="415" y="192" text-anchor="middle">spec-ready</text>
+    <text x="415" y="212" text-anchor="middle">label</text></g>
+  <g class="st impl"><rect x="604" y="168" width="108" height="56" rx="10"/>
+    <text class="name" x="658" y="192" text-anchor="middle">Implemented</text>
+    <text x="658" y="212" text-anchor="middle">PR linked</text></g>
+  <g class="st done"><rect x="800" y="168" width="68" height="56" rx="10"/>
+    <text class="name" x="834" y="192" text-anchor="middle">Done</text>
+    <text x="834" y="212" text-anchor="middle">closed</text></g>
+
+  <!-- skills on edges -->
+  <g class="chip"><rect x="133" y="184" width="216" height="24" rx="12"/>
+    <text class="mono" x="241" y="200" text-anchor="middle">pj-grill-for-specs-readiness</text></g>
+  <g class="chip"><rect x="487" y="184" width="102" height="24" rx="12"/>
+    <text class="mono" x="538" y="200" text-anchor="middle">pj-implement</text></g>
+  <line class="link" x1="538" y1="164" x2="538" y2="184"/>
+  <g class="opt"><rect x="476" y="140" width="124" height="24" rx="12"/>
+    <text class="mono" x="538" y="156" text-anchor="middle">pj-repro (bugs)</text></g>
+
+  <!-- optional skills on states -->
+  <line class="link" x1="66" y1="224" x2="66" y2="256"/>
+  <g class="opt"><rect x="11" y="256" width="110" height="24" rx="12"/>
+    <text class="mono" x="66" y="272" text-anchor="middle">pj-mock-it-up</text></g>
+  <text class="muted" x="66" y="298" text-anchor="middle">mockup into</text>
+  <text class="muted" x="66" y="314" text-anchor="middle">attachments</text>
+  <text class="human" x="66" y="334" text-anchor="middle">human picks one</text>
+
+  <line class="link" x1="415" y1="224" x2="415" y2="256"/>
+  <g class="opt"><rect x="363" y="256" width="104" height="24" rx="12"/>
+    <text class="mono" x="415" y="272" text-anchor="middle">pj-decompose</text></g>
+  <text class="muted" x="415" y="298" text-anchor="middle">child issues</text>
+  <text class="muted" x="415" y="314" text-anchor="middle">under the parent</text>
+
+  <!-- suggestions -->
+  <path class="suggest" d="M160 210 Q150 250 124 266" marker-end="url(#sug)"/>
+  <text class="why" x="160" y="262">UI change, no mockup</text>
+  <path class="suggest" d="M510 210 Q500 250 470 266" marker-end="url(#sug)"/>
+  <text class="why" x="510" y="262">bite too big</text>
+
+  <!-- PR loop -->
+  <line class="link" x1="658" y1="224" x2="658" y2="252"/>
+  <rect class="group" x="580" y="252" width="156" height="104" rx="10"/>
+  <text class="muted" x="658" y="272" text-anchor="middle">PR loop, any order</text>
+  <g class="chip"><rect x="590" y="284" width="136" height="24" rx="12"/>
+    <text class="mono" x="658" y="300" text-anchor="middle">pj-review</text></g>
+  <g class="chip"><rect x="590" y="318" width="136" height="24" rx="12"/>
+    <text class="mono" x="658" y="334" text-anchor="middle">pj-address-review</text></g>
+
+  <!-- repo level -->
+  <line class="rule" x1="12" y1="380" x2="868" y2="380"/>
+  <text class="muted" x="12" y="412">Repo level,</text>
+  <text class="muted" x="12" y="428">not in the issue flow</text>
+  <g class="chip"><rect x="204" y="400" width="132" height="24" rx="12"/>
+    <text class="mono" x="270" y="416" text-anchor="middle">pj-prep-the-repo</text></g>
+  <text class="muted" x="270" y="446" text-anchor="middle">once: labels, AGENTS.md, attachments</text>
+  <g class="chip"><rect x="461" y="400" width="118" height="24" rx="12"/>
+    <text class="mono" x="520" y="416" text-anchor="middle">pj-healthcheck</text></g>
+  <text class="muted" x="520" y="446" text-anchor="middle">read-only: setup, attachments, docs</text>
+  <g class="chip"><rect x="704" y="400" width="110" height="24" rx="12"/>
+    <text class="mono" x="759" y="416" text-anchor="middle">pj-next-round</text></g>
+  <text class="muted" x="759" y="446" text-anchor="middle">read-only: what to run next</text>
+</svg>
