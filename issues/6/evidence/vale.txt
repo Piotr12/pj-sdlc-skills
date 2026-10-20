@@ -1,0 +1,2 @@
+✔ 0 errors, 0 warnings and 0 suggestions in 15 files.
+vale exit 0
