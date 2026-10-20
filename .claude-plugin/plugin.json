@@ -1,7 +1,7 @@
 {
   "name": "pj-sdlc-skills",
-  "version": "0.1.0",
-  "description": "Prepares a GitHub repo for the pj SDLC skills: labels, attachments branch, rulesets, AGENTS.md rules, and a guard hook. The other pj skills are planned.",
+  "version": "0.2.0",
+  "description": "pj SDLC skills: prepare a GitHub repo, grill issues into specs, implement, review, and address reviews, with a guard hook.",
   "author": {
     "name": "Piotr12"
   },

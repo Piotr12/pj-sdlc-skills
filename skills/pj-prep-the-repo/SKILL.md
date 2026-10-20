@@ -3,7 +3,7 @@ name: pj-prep-the-repo
 description: Prepare a new or existing GitHub repo for the pj SDLC skills. Creates the labels and the attachments branch, and opens a PR that adds the AGENTS.md rules, CLAUDE.md, .pj/config.json, and optional enforcement configs. Use when the user asks to set up, initialize, or prepare a repo for the pj skills, or to refresh the pj rules. Safe to run again.
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # pj-prep-the-repo
@@ -46,7 +46,7 @@ Each script prints one JSON line.
 
 | Tool | Needed by | Check | Install |
 |---|---|---|---|
-| `gh`, logged in | All skills | `gh auth status` | `brew install gh`, then `gh auth login` |
+| `gh`, logged in | All skills | `prep.sh status` | `brew install gh`, then `gh auth login` |
 | `git` 2.42 or later | All skills (worktrees) | `git --version` | `brew install git`, or the package manager |
 | `gitleaks` (recommended) | Secret scan before each write to `attachments` | `gitleaks version` | `brew install gitleaks`, or a release binary |
 | Headless browser | pj-mock-it-up, UI evidence | 1. `npx --no-install playwright --version` 2. `command -v google-chrome chromium chromium-browser`, or the Chrome app on macOS | `npx playwright install --with-deps chromium` |

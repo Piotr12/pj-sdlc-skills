@@ -16,20 +16,10 @@ top=$(pj_top)
 if [ "${1:-}" = pr ] && [ -f "${2:-}" ]; then set -- pr "$(cd "$(dirname "$2")" && pwd -P)/$(basename "$2")"; fi
 cd "$top"
 
-wt_branch() { # <path> -> branch of the registered worktree; empty if none; "(unborn)" or "(detached)"
-  git worktree list --porcelain | awk -v p="worktree $1" '
-    $0==p {f=1; next} f && /^branch / {sub("branch refs/heads/",""); print; exit}
-    f && /^detached/ {print "(detached)"; exit} f && /^$/ {exit}'
-}
-wt_registered() { git worktree list --porcelain | grep -qxF "worktree $1"; }
 is_dirty() { [ -n "$(git -C "$1" status --porcelain)" ]; }
 
 # "<number> <state> <branch> <url>" for each PR from a prep branch of this repo (forks ignored).
-prep_prs() {
-  gh pr list --state all --limit 200 --json number,state,headRefName,url,isCrossRepository \
-    --jq '.[] | "\(.number) \(.state) \(.headRefName) \(.url) \(.isCrossRepository)"' \
-    | awk -v p="$PREP" 'index($3, p) == 1 && $5 != "true" {print $1, $2, $3, $4}'
-}
+prep_prs() { pj_prs | awk -v p="$PREP" 'index($3, p) == 1 && $5 != "true" {print $1, $2, $3, $4}'; }
 
 # Files that must never go into the prep PR.
 SENSITIVE='(^|/)(\.env(\..*)?|node_modules/.*|.*\.pem|.*\.key|.*\.p12|id_rsa.*|id_ed25519.*)$'
@@ -56,13 +46,7 @@ cmd_status() {
     "$([ "$def" = "$PJ_MAIN" ] && echo true || echo false)" "$shallow" "$att" "$wt" "$(pj_json "$(pj_tz)")"
 }
 
-cmd_exclude() {
-  local f
-  f="$(git rev-parse --git-common-dir)/info/exclude"
-  mkdir -p "$(dirname "$f")"
-  if grep -qxF '.worktrees/' "$f" 2>/dev/null; then echo '{"ok":true,"action":"exists"}'
-  else echo '.worktrees/' >> "$f"; echo '{"ok":true,"action":"added"}'; fi
-}
+cmd_exclude() { printf '{"ok":true,"action":"%s"}\n' "$(pj_exclude_worktrees)"; }
 
 cmd_labels() {
   local have created=""

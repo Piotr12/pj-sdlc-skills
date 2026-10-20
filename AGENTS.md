@@ -5,7 +5,8 @@ Rules for agents and humans who change this repo.
 ## Layout
 
 - `skills/pj-*/SKILL.md` is the source of truth for a built skill.
-- `docs/` holds the design of the planned skills, and the shared protocol in `docs/index.html`.
+- `skills/pj-prep-the-repo/reference/protocol.md` holds the shared protocol. Each `SKILL.md` links to it and does not repeat it.
+- `docs/index.html` shows the flow and links to each `SKILL.md`.
 - `skills/pj-prep-the-repo/scripts/` does all git and gh work. Skills call the scripts and do not repeat their steps.
 - `hooks/` holds the Claude Code guard hook.
 

@@ -30,4 +30,4 @@ jobs:
           curl -sSfL -o vale.tgz "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
           tar xzf vale.tgz vale
           ./vale sync
-          ./vale README.md AGENTS.md skills/pj-prep-the-repo/SKILL.md skills/pj-prep-the-repo/reference skills/pj-prep-the-repo/templates/AGENTS.rules.md
+          ./vale README.md AGENTS.md skills/*/SKILL.md skills/pj-prep-the-repo/reference skills/pj-prep-the-repo/templates/AGENTS.rules.md
