@@ -3,6 +3,8 @@
 Agent skills that take a GitHub or Forgejo issue from spec to a merged PR.
 Version 0.2.0 has ten skills. All of them follow one protocol: `skills/pj-prep-the-repo/reference/protocol.md`.
 
+![pj issue flow. A Fresh issue goes to pj-grill-for-specs-readiness. Grill asks questions with the needs-input label. A human answers and signs off the spec. For a UI change, pj-mock-it-up makes mockups, and a human picks one. Then the issue is spec-ready. pj-implement opens a PR, after pj-repro for a bug. pj-decompose splits an issue that is too big. With a PR ready for review, the issue has the Implemented state. pj-review and pj-address-review loop on the PR. A human merges the PR, and the issue gets the Done state. pj-prep-the-repo runs once for each repo. pj-next-round and pj-healthcheck change nothing.](docs/flow.svg)
+
 ## Skills
 
 | Skill | Does |
@@ -62,7 +64,8 @@ The protocol also lists what differs on Forgejo. See Forges.
 
 ## Design
 
-Open `docs/index.html` in a browser. It shows the issue states and the skills.
+The diagram above is `docs/flow.svg`. It shows the issue states, the skills, and the human steps.
+Open `docs/index.html` in a browser for the same diagram, with a link to each `SKILL.md`.
 Each skill has its `SKILL.md`. The shared rules are in the protocol.
 
 ## Tests

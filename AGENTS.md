@@ -13,7 +13,8 @@ Rules for agents and humans who change this repo.
 
 - `skills/pj-*/SKILL.md` is the source of truth for a built skill.
 - `skills/pj-prep-the-repo/reference/protocol.md` holds the shared protocol. Each `SKILL.md` links to it and does not repeat it.
-- `docs/index.html` shows the flow and links to each `SKILL.md`.
+- `docs/flow.svg` is the only flow diagram. `README.md` and `docs/index.html` show it.
+- In `docs/index.html`, each skill in the diagram links to its `SKILL.md`.
 - `skills/pj-prep-the-repo/scripts/` does all git and forge work. Skills call the scripts and do not repeat their steps.
 - `skills/pj-prep-the-repo/scripts/forge/<forge>.sh` holds all forge calls. Each adapter defines the same `forge_*` functions.
 - `pj-prep-the-repo` copies the scripts and one adapter to `.pj/scripts/` of the target repo. Skills run that copy.
