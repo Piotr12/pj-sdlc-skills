@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 204" width="880" height="204" role="img" aria-labelledby="t d">
+  <title id="t">pj SDLC skills flow</title>
+  <desc id="d">Issue states Fresh, needs-input, spec-ready, Implemented, Done. pj-grill-for-specs-readiness moves Fresh to spec-ready and asks questions in needs-input until a human answers and signs off. pj-mock-it-up makes mockups for a UI change and a human picks one. pj-decompose splits a big issue into spec-ready children. pj-repro writes a failing test for a bug, then pj-implement opens the PR. pj-review and pj-address-review loop on the PR until a human reviews and merges. pj-prep-the-repo runs once per repo; pj-next-round and pj-healthcheck are read-only.</desc>
+  <style>
+    svg {
+      --ink: #1f2328; --muted: #59636e; --line: #656d76; --surface: #f6f8fa; --human: #9a6700;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      svg { --ink: #e6edf3; --muted: #9198a1; --line: #8b949e; --surface: #161b22; --human: #d29922; }
+    }
+    text { fill: var(--ink); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .name { font-size: 15px; font-weight: 600; }
+    .sub, .note { fill: var(--muted); }
+    .human { fill: var(--human); font-weight: 600; }
+    .box { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+    .edge { stroke: var(--line); stroke-width: 1.5; fill: none; }
+    .hedge { stroke: var(--human); stroke-width: 2.5; fill: none; }
+    .dot { stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 2 3; fill: none; }
+    .head { fill: var(--line); }
+    .hhead { fill: var(--human); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path class="head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path class="hhead" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <!-- states -->
+  <rect class="box" x="16" y="90" width="88" height="44" rx="6"/>
+  <text class="name" x="60" y="109" text-anchor="middle">Fresh</text>
+  <text class="sub" x="60" y="126" text-anchor="middle">no label</text>
+
+  <rect class="box" x="168" y="16" width="120" height="44" rx="6"/>
+  <text class="name mono" x="228" y="35" text-anchor="middle">needs-input</text>
+  <text class="sub" x="228" y="52" text-anchor="middle">label</text>
+
+  <rect class="box" x="344" y="90" width="110" height="44" rx="6"/>
+  <text class="name mono" x="399" y="109" text-anchor="middle">spec-ready</text>
+  <text class="sub" x="399" y="126" text-anchor="middle">label</text>
+
+  <rect class="box" x="592" y="90" width="116" height="44" rx="6"/>
+  <text class="name" x="650" y="109" text-anchor="middle">Implemented</text>
+  <text class="sub" x="650" y="126" text-anchor="middle">PR ready</text>
+
+  <rect class="box" x="800" y="90" width="64" height="44" rx="6"/>
+  <text class="name" x="832" y="109" text-anchor="middle">Done</text>
+  <text class="sub" x="832" y="126" text-anchor="middle">closed</text>
+
+  <!-- Fresh to spec-ready: grill, with the needs-input loop -->
+  <line class="edge" x1="104" y1="112" x2="342" y2="112" marker-end="url(#a)"/>
+  <text class="mono" x="228" y="130" text-anchor="middle">pj-grill-for-specs-readiness</text>
+  <line class="edge" x1="210" y1="112" x2="210" y2="62" marker-end="url(#a)"/>
+  <text class="note" x="202" y="84" text-anchor="end">questions</text>
+  <line class="hedge" x1="246" y1="60" x2="246" y2="109" marker-end="url(#h)"/>
+  <text class="human" x="254" y="80">human answers,</text>
+  <text class="human" x="254" y="96">signs off</text>
+
+  <line class="dot" x1="216" y1="136" x2="216" y2="152"/>
+  <text x="216" y="166" text-anchor="middle"><tspan class="note">UI change: </tspan><tspan class="mono">pj-mock-it-up</tspan></text>
+  <text class="human" x="216" y="182" text-anchor="middle">human picks a mockup</text>
+
+  <!-- spec-ready: decompose -->
+  <line class="dot" x1="399" y1="134" x2="399" y2="152"/>
+  <text x="399" y="166" text-anchor="middle"><tspan class="note">too big: </tspan><tspan class="mono">pj-decompose</tspan></text>
+  <text class="note" x="399" y="182" text-anchor="middle">child issues start spec-ready</text>
+
+  <!-- spec-ready to Implemented: implement, repro first for a bug -->
+  <line class="edge" x1="454" y1="112" x2="590" y2="112" marker-end="url(#a)"/>
+  <text class="mono" x="522" y="130" text-anchor="middle">pj-implement</text>
+  <text x="522" y="104" text-anchor="middle"><tspan class="note">bug: </tspan><tspan class="mono">pj-repro</tspan><tspan class="note"> first</tspan></text>
+
+  <!-- PR loop on Implemented -->
+  <path class="edge" d="M632 134 C620 164 680 164 669 137" marker-end="url(#a)"/>
+  <text class="mono" x="650" y="176" text-anchor="middle">pj-review, pj-address-review</text>
+  <text class="note" x="650" y="192" text-anchor="middle">any order, until merge</text>
+
+  <!-- Implemented to Done: human -->
+  <line class="hedge" x1="708" y1="112" x2="797" y2="112" marker-end="url(#h)"/>
+  <text class="human" x="753" y="88" text-anchor="middle">human reviews</text>
+  <text class="human" x="753" y="104" text-anchor="middle">and merges</text>
+
+  <!-- repo level -->
+  <text x="864" y="30" text-anchor="end"><tspan class="note">once per repo</tspan><tspan class="mono" dx="10">pj-prep-the-repo</tspan></text>
+  <text x="864" y="50" text-anchor="end"><tspan class="note">read-only, any time</tspan><tspan class="mono" dx="10">pj-next-round,</tspan><tspan class="mono" dx="8">pj-healthcheck</tspan></text>
+</svg>
