@@ -847,5 +847,19 @@ ok "Implemented means PR ready" sh -c "grep -qF '>PR ready<' '$F' && ! grep -qF 
 ok "flow.svg 100 KB or less"   test "$(wc -c < "$F" | tr -d ' ')" -le 102400
 ok "no script or external loads" sh -c "! grep -qiE '<script|[[:space:]]on[a-z]+=|@import|url\\(http|href=\"http' '$F'"
 
+echo "markdown"
+M="$(cd "$S/../../.." && pwd)"
+# A table row after a paragraph line, outside code fences, splits a table. A header row with its delimiter row is fine.
+split_rows() {
+  awk 'FNR == 1 { prev = p = ""; f = 0 } /^```/ { f = !f }
+    !f && p ~ /^\|/ && prev != "" && prev !~ /^\|/ && $0 !~ /^\|[ :-]*-/ { print FILENAME ":" FNR - 1 }
+    { prev = p; p = $0 }' "$@"
+}
+ok "no split tables" test -z "$(split_rows "$M"/README.md "$M"/AGENTS.md "$M"/skills/*/SKILL.md \
+  "$M"/skills/pj-prep-the-repo/reference/*.md "$M"/skills/pj-prep-the-repo/templates/*.md)"
+ok "issue states in order, Done last" test "$(sed -n '/^## Issue states/,/^## /p' "$M/skills/pj-prep-the-repo/reference/protocol.md" \
+  | awk -F' *\\| *' '/^\| / && $2 != "State" { r = r $2 "," } /^$/ && r { print r; exit }')" \
+  = 'Fresh,`needs-input`,`spec-ready`,Implemented,Done,'
+
 echo; echo "$pass passed, $fail failed"
 [ $fail -eq 0 ]
