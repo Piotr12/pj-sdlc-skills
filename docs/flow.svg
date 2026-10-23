@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="470" viewBox="0 0 880 470" role="img" aria-labelledby="t d">
   <title id="t">pj SDLC skills: issue flow</title>
-  <desc id="d">An issue goes from Fresh to needs-input and spec-ready with pj-grill-for-specs-readiness, which can suggest pj-mock-it-up. pj-implement, after pj-repro for bugs, takes a spec-ready issue to Implemented with a PR, or suggests pj-decompose when the bite is too big. pj-review and pj-address-review loop on the PR until a human merges it and the issue is Done. A human answers questions, signs off the spec, picks a mockup, and reviews and merges the PR. pj-prep-the-repo runs once per repo; pj-healthcheck and pj-next-round are read-only.</desc>
+  <desc id="d">An issue goes from Fresh to needs-input and spec-ready with pj-grill-for-specs-readiness, which can suggest pj-mock-it-up. pj-implement, after pj-repro for bugs, takes a spec-ready issue to Implemented with a PR, or suggests pj-decompose when the bite is too big. pj-review and pj-address-review loop on the PR until a human merges it and the issue is Done. A human answers questions, signs off the spec, picks a mockup, and reviews and merges the PR. pj-prep-the-repo runs once per repo; pj-healthcheck and pj-doctor are read-only. Doctor suggests next actions or checks project structure and rule compliance.</desc>
   <style>
     svg {
       --bg: #ffffff; --ink: #111827; --line: #6b7280; --rule: #e5e7eb;
@@ -138,7 +138,7 @@
   <a href="../skills/pj-healthcheck/SKILL.md" target="_top"><g class="chip"><rect x="461" y="400" width="118" height="24" rx="12"/>
     <text class="mono" x="520" y="416" text-anchor="middle">pj-healthcheck</text></g></a>
   <text class="muted" x="520" y="446" text-anchor="middle">read-only: setup, attachments, docs</text>
-  <a href="../skills/pj-next-round/SKILL.md" target="_top"><g class="chip"><rect x="704" y="400" width="110" height="24" rx="12"/>
-    <text class="mono" x="759" y="416" text-anchor="middle">pj-next-round</text></g></a>
-  <text class="muted" x="759" y="446" text-anchor="middle">read-only: what to run next</text>
+  <a href="../skills/pj-doctor/SKILL.md" target="_top"><g class="chip"><rect x="704" y="400" width="110" height="24" rx="12"/>
+    <text class="mono" x="759" y="416" text-anchor="middle">pj-doctor</text></g></a>
+  <text class="muted" x="759" y="446" text-anchor="middle">read-only: next round, diagnose</text>
 </svg>

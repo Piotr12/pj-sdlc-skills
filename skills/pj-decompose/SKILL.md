@@ -69,4 +69,4 @@ The parent spec has a sign-off. Each child spec is a subset of it, so the child 
 Tell the user:
 
 - The child issues, with their links and dependencies.
-- The next step: `pj-next-round`, or `pj-implement` for the first child.
+- The next step: `pj-doctor next-round`, or `pj-implement` for the first child.
