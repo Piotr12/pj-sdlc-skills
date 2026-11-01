@@ -39,8 +39,14 @@ A closed issue: do nothing. An open issue: continue from its current state.
 
 1. Run `.pj/scripts/handhold.sh start <n>`.
 2. If it exits with 3, show `reason` and `detail`. Stop.
-3. If `action` is `none`, tell the user `reason`, and stop. `closed`: the issue is closed. `reported`: nothing changed since the last report.
-4. If `action` is `started`, tell the user the run id, the first step, and the paths of the log and the steps file.
+3. If `action` is `none`, tell the user `reason`. Stop.
+4. If `action` is `started`, tell the user the run id and the first step.
+5. Give the paths of the log and the steps file.
+
+| `reason` of `none` | Meaning |
+|---|---|
+| `closed` | The issue has the closed state. |
+| `reported` | Nothing changed since the last report. |
 
 Tell the user:
 
