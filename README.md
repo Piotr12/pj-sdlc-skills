@@ -3,6 +3,8 @@
 Agent skills that take a GitHub or Forgejo issue from spec to a merged PR.
 Version 0.2.0 has eleven skills. All of them follow one protocol: `skills/pj-prep-the-repo/reference/protocol.md`.
 
+![pj issue flow. A Fresh issue goes to pj-grill-for-specs-readiness. Grill asks questions with the needs-input label. A human answers and signs off the spec. For a UI change, pj-mock-it-up makes mockups, and a human picks one. Then the issue is spec-ready. pj-implement opens a PR, after pj-repro for a bug. pj-decompose splits an issue that is too big. With a PR ready for review, the issue has the Implemented state. pj-review and pj-address-review loop on the PR. A human merges the PR, and the issue gets the Done state. pj-prep-the-repo runs once for each repo. pj-doctor and pj-healthcheck change nothing. pj-handhold runs the whole flow for one issue with no human, and a human merges.](docs/flow.svg)
+
 ## Skills
 
 | Skill | Does |
@@ -12,7 +14,7 @@ Version 0.2.0 has eleven skills. All of them follow one protocol: `skills/pj-pre
 | `pj-implement` | Implements a `spec-ready` issue and opens a PR. |
 | `pj-review` | Reviews a PR adversarially. |
 | `pj-address-review` | Works through the open review threads on a PR. |
-| `pj-next-round` | Suggests the next actions. It changes nothing. |
+| `pj-doctor` | Suggests next actions or diagnoses project structure and rule compliance. It changes no project or tracker state. |
 | `pj-mock-it-up` | Makes mockup variants for a UI change. |
 | `pj-decompose` | Splits an issue that is too big into child issues. |
 | `pj-repro` | Reproduces a bug with a failing test before the fix. |
@@ -61,9 +63,24 @@ Manual: copy all `skills/pj-*` folders into the skills folder of your agent.
 For a team, give the agent its own identity on the forge. See Identity in the protocol.
 The protocol also lists what differs on Forgejo. See Forges.
 
+### Doctor
+
+`pj-doctor` replaces `pj-next-round`. Remove the old skill folder when updating a manual installation.
+
+| Command | Result |
+|---|---|
+| `/pj-doctor next-round` | Up to 5 next actions, independent parallel work, blockers, and human actions. This is the default mode. |
+| `/pj-doctor diagnose` | Project structure and rule checks, with evidence-backed gaps between specs, code, tests, and issues. |
+| `/pj-doctor diagnose src/orders` | The same checks within a named scope. An issue, PR, or named area also works. |
+
+Both modes report in the conversation. They do not run fixes or create issues.
+Diagnosis suggests issue titles and acceptance criteria after checking existing work.
+Use `pj-healthcheck` for setup and attachment hygiene.
+
 ## Design
 
-Open `docs/index.html` in a browser. It shows the issue states and the skills.
+The diagram above is `docs/flow.svg`. It shows the issue states, the skills, and the human steps.
+Open `docs/index.html` in a browser for the same diagram, with a link to each `SKILL.md`.
 Each skill has its `SKILL.md`. The shared rules are in the protocol.
 
 ## Tests

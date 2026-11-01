@@ -22,6 +22,6 @@ The trust rules accept answers only from trusted humans. A comment with a marker
 - An issue can go from Fresh to a reviewed PR with no human answer.
 - The spec sign-off is no longer always human. The `ready` marker shows `by=delegate`. The PR log lists each decision, low confidence first.
 - In the team setup, the bot posts the `delegate` marker. The marker does not prove which human started the run.
-- `pj-next-round` skips delegated issues, so humans and the driver do not work on the same issue.
+- `pj-doctor next-round` skips delegated issues, so humans and the driver do not work on the same issue.
 - A wrong delegated decision reaches the PR. The human finds it in the decision log before the merge.
 - The run needs a machine that stays awake. A later CI trigger can run `handhold.sh` instead.
