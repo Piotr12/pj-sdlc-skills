@@ -3,7 +3,7 @@
 - You may create `pj/*` branches. You may push to them and to `attachments`.
 - You may open PRs, comment, set labels, and edit the pj spec block of an issue.
 - You may resolve your own review threads.
-- You may create issues after the user approves.
+- You may create issues after the user approves, or under a `pj-handhold` delegation.
 - You must not push to `main`, merge, or close issues.
 - You must not force-push a branch that you did not create.
 - You must not delete branches or change CI or secrets.
