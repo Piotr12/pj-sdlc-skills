@@ -88,7 +88,7 @@ From round 2:
 
 ### 6. Post the review
 
-1. Get a marker: `.pj/scripts/marker.sh pj-review review round=<round>`.
+1. Get a marker: `.pj/scripts/marker.sh pj-review review round=<round> blocking=<count>`. `<count>` is the number of blocking findings.
 2. Write the review body in the format below. The marker is the first line.
 3. Write the inline findings to a JSON file: `[{"path":"…","line":12,"body":"<marker>\n…"}]`.
 4. Run `.pj/scripts/review.sh post <pr> <body-file> <comments-file>`.

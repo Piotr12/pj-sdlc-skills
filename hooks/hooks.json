@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/pj-guard.sh\""
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/skills/pj-prep-the-repo/scripts/pj-guard.sh\""
           }
         ]
       }

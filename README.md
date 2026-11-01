@@ -1,7 +1,7 @@
 # pj SDLC skills
 
 Agent skills that take a GitHub or Forgejo issue from spec to a merged PR.
-Version 0.2.0 has ten skills. All of them follow one protocol: `skills/pj-prep-the-repo/reference/protocol.md`.
+Version 0.2.0 has eleven skills. All of them follow one protocol: `skills/pj-prep-the-repo/reference/protocol.md`.
 
 ## Skills
 
@@ -17,12 +17,13 @@ Version 0.2.0 has ten skills. All of them follow one protocol: `skills/pj-prep-t
 | `pj-decompose` | Splits an issue that is too big into child issues. |
 | `pj-repro` | Reproduces a bug with a failing test before the fix. |
 | `pj-healthcheck` | Checks the repo setup, `attachments`, and `docs/`. It changes nothing. |
+| `pj-handhold` | Takes one issue through the whole flow with no human. A new agent session runs each step. A human merges. |
 
 The scripts are in `skills/pj-prep-the-repo/scripts/`. `forge/` holds one adapter for each forge: GitHub and Forgejo.
 `pj-prep-the-repo` copies the scripts and the adapter for the repo to `.pj/scripts/`. The other skills use that copy.
 Install all skills together.
 
-The Claude Code plugin also adds a guard hook. It blocks pushes to `main`, force-pushes, merges, approvals, issue closes, and `gh`, `fj`, or API writes outside the scripts.
+The Claude Code plugin also adds a guard hook. `pj-handhold` adds the same guard to each of its steps. It blocks pushes to `main`, force-pushes, merges, approvals, issue closes, and `gh`, `fj`, or API writes outside the scripts.
 
 ## Requirements
 

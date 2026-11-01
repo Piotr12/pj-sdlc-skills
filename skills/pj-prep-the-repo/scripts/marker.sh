@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the hidden marker line that starts each body an agent writes.
 # Usage: marker.sh <skill> <event> [key=value ...]
-#   Events: questions sign-off ready claim review reply stopped. run=<id> reuses a run id.
+#   Events: questions sign-off ready claim review reply stopped delegate answer done. run=<id> reuses a run id.
 #   Values of digits only become JSON numbers.
 # Prints one JSON line: {"ok":true,"marker":"<!-- pj:v1 {...} -->","run":"..."}
 
@@ -10,7 +10,7 @@
 [ $# -ge 2 ] || pj_die $PJ_EXIT_USAGE usage "marker.sh <skill> <event> [key=value ...]"
 skill=$1 event=$2; shift 2
 case "$skill" in pj-*[!a-z-]*|pj-) pj_die $PJ_EXIT_USAGE bad-skill "$skill" ;; pj-*) ;; *) pj_die $PJ_EXIT_USAGE bad-skill "$skill" ;; esac
-case "$event" in questions|sign-off|ready|claim|review|reply|stopped) ;; *) pj_die $PJ_EXIT_USAGE bad-event "$event" ;; esac
+case "$event" in questions|sign-off|ready|claim|review|reply|stopped|delegate|answer|done) ;; *) pj_die $PJ_EXIT_USAGE bad-event "$event" ;; esac
 
 run="" extra=""
 for kv in "$@"; do
