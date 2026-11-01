@@ -16,6 +16,7 @@ The trust rules accept answers only from trusted humans. A comment with a marker
 - Each step runs in a new headless agent session, with the guard hook, a permission mode, and a budget.
 - The driver never merges, approves, or closes. A human reviews and merges the PR.
 - The driver refuses issues from untrusted authors.
+- Under a delegation, `pj-decompose` creates child issues with no user approval. The Autonomy rules of `AGENTS.md` allow it.
 
 ## Consequences
 
