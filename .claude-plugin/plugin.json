@@ -1,6 +1,6 @@
 {
   "name": "pj-sdlc-skills",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "pj SDLC skills: prepare a GitHub or Forgejo repo, grill issues into specs, implement, review, and address reviews, with a guard hook.",
   "author": {
     "name": "Piotr12"
