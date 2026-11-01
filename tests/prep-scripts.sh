@@ -357,6 +357,8 @@ gcase 2 "git push origin HEAD:main"
 gcase 2 "git push origin --delete pj/1"
 gcase 2 "git push origin :pj/1"
 gcase 2 "gh pr merge 3 --squash"
+HE="$(cd "$S/../../.." && pwd)/hooks/pj-guard.sh"
+printf '{"tool_name":"Bash","tool_input":{"command":"gh pr merge 3"}}' | "$HE" >/dev/null 2>&1; ok "plugin hook entry runs the guard" test $? -eq 2
 gcase 2 "gh issue close 4"
 gcase 2 "gh api -X DELETE repos/o/r/git/refs/heads/x"
 gcase 2 "gh secret set TOKEN"
