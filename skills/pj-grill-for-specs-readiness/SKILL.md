@@ -23,6 +23,8 @@ Check that an issue meets the Definition of Ready. Build the spec on the way.
 - Change the issue body only with `.pj/scripts/spec.sh set`. Text outside the spec markers stays the same.
 - The human can answer a question with "agent decides". Then you decide and record it under Agent decisions.
 - Never put an agent decision under Human decisions.
+- An answer with `delegated` true comes from `pj-handhold`. It is an agent decision. Record it under Agent decisions.
+- A delegated `Sign-off: yes` signs off the spec. Add `by=delegate` to the `ready` marker.
 
 ## Steps
 

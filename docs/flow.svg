@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="470" viewBox="0 0 880 470" role="img" aria-labelledby="t d">
   <title id="t">pj SDLC skills: issue flow</title>
-  <desc id="d">An issue goes from Fresh to needs-input and spec-ready with pj-grill-for-specs-readiness, which can suggest pj-mock-it-up. pj-implement, after pj-repro for bugs, takes a spec-ready issue to Implemented with a PR, or suggests pj-decompose when the bite is too big. pj-review and pj-address-review loop on the PR until a human merges it and the issue is Done. A human answers questions, signs off the spec, picks a mockup, and reviews and merges the PR. pj-prep-the-repo runs once per repo; pj-healthcheck and pj-doctor are read-only. Doctor suggests next actions or checks project structure and rule compliance.</desc>
+  <desc id="d">An issue goes from Fresh to needs-input and spec-ready with pj-grill-for-specs-readiness, which can suggest pj-mock-it-up. pj-implement, after pj-repro for bugs, takes a spec-ready issue to Implemented with a PR, or suggests pj-decompose when the bite is too big. pj-review and pj-address-review loop on the PR until a human merges it and the issue is Done. A human answers questions, signs off the spec, picks a mockup, and reviews and merges the PR. pj-prep-the-repo runs once per repo; pj-healthcheck and pj-doctor are read-only. Doctor suggests next actions or checks project structure and rule compliance. pj-handhold runs the whole flow for one issue with no human, each step in a new agent session, and stops before the merge.</desc>
   <style>
     svg {
       --bg: #ffffff; --ink: #111827; --line: #6b7280; --rule: #e5e7eb;
@@ -127,6 +127,15 @@
     <text class="mono" x="658" y="300" text-anchor="middle">pj-review</text></g></a>
   <a href="../skills/pj-address-review/SKILL.md" target="_top"><g class="chip"><rect x="590" y="318" width="136" height="24" rx="12"/>
     <text class="mono" x="658" y="334" text-anchor="middle">pj-address-review</text></g></a>
+
+  <!-- the whole flow, unattended -->
+  <rect class="group" x="340" y="20" width="528" height="88" rx="10"/>
+  <a href="../skills/pj-handhold/SKILL.md" target="_top"><g class="chip"><rect x="354" y="32" width="102" height="24" rx="12"/>
+    <text class="mono" x="405" y="48" text-anchor="middle">pj-handhold</text></g></a>
+  <text class="muted" x="468" y="48">runs the whole flow for one issue</text>
+  <text class="muted" x="354" y="70">Each step is a new agent session. An agent answers</text>
+  <text class="muted" x="354" y="86">for the human and logs each decision in the issue and the PR.</text>
+  <text class="human" x="354" y="102">A human still merges.</text>
 
   <!-- repo level -->
   <line class="rule" x1="12" y1="380" x2="868" y2="380"/>

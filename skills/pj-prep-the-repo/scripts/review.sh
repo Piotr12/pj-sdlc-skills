@@ -4,7 +4,7 @@
 #   review.sh post <pr> <body-file> [comments.json]   comments: [{"path","line","side"?,"body"}]
 #   review.sh reply <pr> <comment-id> <body-file>     reply to the thread of a review comment
 #   review.sh resolve <pr> <thread-id>                 resolves a thread that pj-review started
-# Bodies start with a marker line from marker.sh: event review for post, reply for reply.
+# Bodies start with a marker line from marker.sh: event review for post, reply or answer (pj-handhold) for reply.
 # Prints one JSON line. Exit 3: the thread did not start with a pj review marker.
 # A forge without an API to resolve threads (Forgejo) prints "resolved":null and a warning.
 
@@ -32,7 +32,8 @@ cmd_reply() {
   local pr=${1:-} cid=${2:-} body=${3:-} id
   pj_num "$pr"; pj_num "$cid"
   [ -f "$body" ] || pj_die $PJ_EXIT_USAGE usage "review.sh reply <pr> <comment-id> <body-file>"
-  pj_is_marker "$body" reply || pj_die $PJ_EXIT_USAGE no-marker "The first line of $body must be a reply marker."
+  pj_is_marker "$body" reply || pj_is_marker "$body" answer \
+    || pj_die $PJ_EXIT_USAGE no-marker "The first line of $body must be a reply or an answer marker."
   pj_require_main
   id=$(forge_review_reply "$pr" "$cid" "$body")
   printf '{"ok":true,"comment":%s}\n' "$id"

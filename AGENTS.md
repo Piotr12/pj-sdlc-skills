@@ -18,7 +18,8 @@ Rules for agents and humans who change this repo.
 - `skills/pj-prep-the-repo/scripts/` does all git and forge work. Skills call the scripts and do not repeat their steps.
 - `skills/pj-prep-the-repo/scripts/forge/<forge>.sh` holds all forge calls. Each adapter defines the same `forge_*` functions.
 - `pj-prep-the-repo` copies the scripts and one adapter to `.pj/scripts/` of the target repo. Skills run that copy.
-- `hooks/` holds the Claude Code guard hook.
+- `hooks/` holds the Claude Code hook config.
+- The guard script is in `skills/pj-prep-the-repo/scripts/`. Prep copies it with the other scripts.
 - `.pj/scripts/` is a copy that `pj-prep-the-repo` makes. Do not edit it. Change `skills/pj-prep-the-repo/scripts/`, then run `pj-prep-the-repo`.
 
 ## Changes

@@ -19,6 +19,7 @@ Split an issue that is too big into child issues.
 - Follow `<pj>/reference/protocol.md`. `<pj>` is the `pj-prep-the-repo` skill folder, next to this folder.
 - Never call `gh`, `fj`, or the forge API directly. Use the scripts in `.pj/scripts/`. Post each comment with `comment.sh`.
 - Create issues only after the user approves the plan.
+- Under an active `delegation` in the state, do not wait. Post the plan on the parent, then create the issues.
 - One level only. A child does not get children.
 - The parent keeps `spec-ready`. `pj-implement` refuses a parent with children.
 - A human closes the parent when all children close. Agents do not close issues.
@@ -46,6 +47,7 @@ A rerun reuses a child with the same title. The body file holds the full child i
 - Each acceptance criterion of the parent goes to exactly one child.
 - Each child fits in one `pj-implement` run. Use Too big in the protocol.
 - Make the slices independent when you can. If the order matters, write `Depends on: #x` in the child.
+- Create the children in the order of their dependencies.
 
 ## Child issue
 

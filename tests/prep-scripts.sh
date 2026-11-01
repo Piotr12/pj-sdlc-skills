@@ -8,7 +8,7 @@ set -uo pipefail
 S="$(cd "$(dirname "$0")/../skills/pj-prep-the-repo/scripts" && pwd)"
 ROOT=$(mktemp -d "${TMPDIR:-/tmp}/pj-test.XXXXXX")
 trap '[ -n "${KEEP:-}" ] || rm -rf "$ROOT"' EXIT
-G="$(cd "$(dirname "$0")/../hooks" && pwd)/pj-guard.sh"
+G="$S/pj-guard.sh"
 pass=0 fail=0
 
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
@@ -357,6 +357,8 @@ gcase 2 "git push origin HEAD:main"
 gcase 2 "git push origin --delete pj/1"
 gcase 2 "git push origin :pj/1"
 gcase 2 "gh pr merge 3 --squash"
+HE="$(cd "$S/../../.." && pwd)/hooks/pj-guard.sh"
+printf '{"tool_name":"Bash","tool_input":{"command":"gh pr merge 3"}}' | "$HE" >/dev/null 2>&1; ok "plugin hook entry runs the guard" test $? -eq 2
 gcase 2 "gh issue close 4"
 gcase 2 "gh api -X DELETE repos/o/r/git/refs/heads/x"
 gcase 2 "gh secret set TOKEN"
@@ -514,6 +516,8 @@ ok "review is a COMMENT on the head" sh -c "grep -q '\"event\":\"COMMENT\",\"com
 { mark pj-address-review reply; echo "Fixed in abc."; } > "$ROOT/rep.md"
 run "$S/review.sh" reply 3 55 "$ROOT/rep.md"; ok "reply posted" sh -c "test $rc -eq 0 && grep -q 'comments/55/replies' '$FAKE_GH/posts'"
 run "$S/review.sh" reply 3 55 "$ROOT/r1.md"; ok "reply with review marker: exit 2" test $rc -eq 2
+{ mark pj-handhold answer; echo "D-001 · high · Use the short name."; } > "$ROOT/ans.md"
+run "$S/review.sh" reply 3 55 "$ROOT/ans.md"; ok "reply with answer marker" test $rc -eq 0
 echo '{"data":{"node":{"comments":{"nodes":[{"body":"human: rename this"}]}}}}' > "$FAKE_GH/graphql.json"
 run "$S/review.sh" resolve 3 PRRT_1; ok "human thread: exit 3" sh -c "test $rc -eq 3 && test ! -f '$FAKE_GH/mutations'"
 jq -n --arg b "$(mark pj-review review)" '{data: {node: {comments: {nodes: [{body: ($b + "\nfinding")}]}}}}' > "$FAKE_GH/graphql.json"
@@ -807,6 +811,163 @@ run "$S/list.sh" issues;      ok "issues listed"         test "$(jv '[.issues[] 
 ok "every call sent the token" sh -c "! grep -v 'token=fjtok42$' '$FJ/log' | grep -v 'token=bad$' | grep -q ."
 ok "token never on the command line" test ! -e "$FJ/leaks"
 unset FAKE_FJ FORGEJO_TOKEN; export PJ_FORGE=github
+
+echo "handhold: state"
+new_repo handhold
+cat > "$ROOT/bin/claude" <<'EOF'
+#!/usr/bin/env bash
+# Fake agent CLI. State in $FAKE_CLAUDE: n (call count), calls (argv per call).
+# <k>.json replaces the fake gh graphql answer on call k. fail-<k> fails call k. FAKE_COST is the cost per call.
+st=$FAKE_CLAUDE; k=$(( $(cat "$st/n" 2>/dev/null || echo 0) + 1 )); echo $k > "$st/n"
+printf '%s\n' "$*" >> "$st/calls"
+[ -f "$st/$k.json" ] && cp "$st/$k.json" "$FAKE_GH/graphql.json"
+[ -f "$st/fail-$k" ] && { echo '{"is_error":true,"total_cost_usd":0.1}'; exit 1; }
+echo "{\"type\":\"result\",\"is_error\":false,\"total_cost_usd\":${FAKE_COST:-1.5},\"session_id\":\"s$k\",\"num_turns\":3}"
+EOF
+chmod +x "$ROOT/bin/claude"
+H="$S/handhold.sh"
+cm() { # <day> <body> [association] -> a comment
+  jq -n --arg d "$1" --arg b "$2" --arg a "${3:-OWNER}" \
+    '{author: {login: "me"}, authorAssociation: $a, createdAt: "2026-01-\($d)T00:00:00Z", url: "c\($d)", body: $b}'
+}
+iss() { # <state> <labels> <comments-array> [open-prs-array] [children] [author association] -> an issue
+  jq -n --arg st "$1" --arg l "$2" --argjson c "$3" --argjson prs "${4:-[]}" --argjson ch "${5:-0}" --arg a "${6:-OWNER}" \
+    '{number: 5, title: "t", state: $st, body: "x", author: {login: "ann"}, authorAssociation: $a,
+      labels: {nodes: [$l | split(",")[] | select(. != "") | {name: .}]}, assignees: {nodes: []},
+      subIssues: {totalCount: $ch}, closedByPullRequestsReferences: {nodes: $prs}, comments: {nodes: $c}}'
+}
+prj() { # <isDraft> <head sha> <reviews-array> [threads-array] -> a PR
+  jq -n --argjson d "$1" --arg h "$2" --argjson rv "$3" --argjson th "${4:-[]}" \
+    '{number: 9, state: "OPEN", isDraft: $d, isCrossRepository: false, author: {login: "me"}, authorAssociation: "OWNER",
+      headRefName: "pj/5", headRefOid: $h, additions: 1, deletions: 0, closingIssuesReferences: {nodes: [{number: 5}]},
+      comments: {nodes: []}, reviews: {nodes: $rv}, reviewThreads: {nodes: $th}}'
+}
+rv() { jq -n --arg b "$(mark pj-review review round=$1 blocking=$2)" --arg o "$3" '{body: $b, createdAt: "2026-01-09T00:00:00Z", commit: {oid: $o}}'; }
+th() { # <id> <last body> [last association] -> an open thread with a pj-review finding first
+  jq -n --arg i "$1" --arg f "$(mark pj-review review round=1)" --arg b "$2" --arg a "${3:-OWNER}" \
+    '{id: $i, isResolved: false, path: "a.ts", line: 1, comments: {nodes: [{databaseId: 11, body: ($f + "\nbug"), url: "t-\($i)"},
+      {body: $b, author: {login: "me"}, authorAssociation: $a}]}}'
+}
+gq() { jq -n --argjson i "$1" --argjson p "${2:-null}" '{data: {repository: {issue: $i, pullRequest: $p}}}' > "${3:-$FAKE_GH/graphql.json}"; }
+nx() { # <desc> <expected action> [expected target]
+  run "$H" next 5
+  ok "$1" test "$(jv .action)${3:+:$(jv .target)}" = "$2${3:+:$3}"
+}
+OPEN_PR='[{"number":9,"isDraft":false,"state":"OPEN"}]'
+DRAFT_PR='[{"number":9,"isDraft":true,"state":"OPEN"}]'
+DG=$(mark pj-handhold delegate by=me run=r9); AN=$(mark pj-handhold answer run=r9)
+Q=$(mark pj-grill-for-specs-readiness questions); SO=$(mark pj-grill-for-specs-readiness sign-off spec=sha256:a)
+ST=$(mark pj-implement stopped reason=ac-change); TB=$(mark pj-implement stopped reason=too-big)
+RS=$(mark pj-repro stopped reason=no-repro); DN=$(mark pj-handhold done reason=clean sha=h2)
+RP=$(mark pj-address-review reply); ASK=$(mark pj-address-review reply kind=ask)
+
+gq "$(iss OPEN needs-input "[$(cm 01 "$Q"), $(cm 02 "$DG"), $(cm 03 "$AN
+Q-001: a")]")"
+run "$S/state.sh" issue 5
+ok "delegated answer counts"  test "$(jv '[.answers[] | "\(.author):\(.delegated)"] | join(",")')" = me:true
+ok "delegation active"        test "$(jv '"\(.delegation.by) \(.delegation.run) \(.delegation.active)"')" = "me r9 true"
+ok "window ignores delegate and answer" test "$(jv .lastMarkerAt)" = 2026-01-01T00:00:00Z
+ok "issue author trust"       test "$(jv .authorTrusted)" = true
+gq "$(iss OPEN needs-input "[$(cm 01 "$Q"), $(cm 03 "$AN
+Q-001: a")]")"
+run "$S/state.sh" issue 5;    ok "answer without delegation: no answer" test "$(jv '.answers | length')" = 0
+gq "$(iss OPEN needs-input "[$(cm 01 "$DG"), $(cm 02 "$DN")]")"
+run "$S/state.sh" issue 5;    ok "done ends the delegation" test "$(jv .delegation.active)" = false
+gq "$(iss OPEN needs-input "[$(cm 01 "$DG" NONE)]")"
+run "$S/state.sh" issue 5;    ok "untrusted delegate ignored" test "$(jv .delegation)" = null
+gq "$(iss OPEN "" "[]" "$OPEN_PR")" "$(prj false h2 "[$(rv 1 2 h1)]" "[$(th T1 "$ASK
+which name?"), $(th T2 "$RP
+Fixed")]")"
+run "$S/state.sh" pr 9
+ok "last review blocking"     test "$(jv .lastBlocking)" = 2
+ok "ask thread listed, not actionable" sh -c "test '$(jv '[.asked[].id] | join(",")')' = T1 && test '$(jv '.threads | length')' = 0"
+
+echo "handhold: next step"
+HD="$(git rev-parse --git-common-dir)/pj-handhold"
+gq "$(iss CLOSED "" "[]")";                                         nx "closed: none" none
+gq "$(iss OPEN "" "[]")";                                           nx "fresh: grill" pj-grill-for-specs-readiness 5
+gq "$(iss OPEN needs-input "[$(cm 01 "$Q")]")";                     nx "open questions: decide" decide
+gq "$(iss OPEN needs-input "[$(cm 01 "$Q"), $(cm 02 "Q-001: a")]")"; nx "human answer: grill" pj-grill-for-specs-readiness
+gq "$(iss OPEN needs-input "[$(cm 01 "$Q"), $(cm 02 "$DG"), $(cm 03 "$AN")]")"; nx "delegated answer: grill" pj-grill-for-specs-readiness
+gq "$(iss OPEN needs-input "[$(cm 01 "$Q"), $(cm 03 "$AN")]")";     nx "answer without delegation: decide" decide
+gq "$(iss OPEN needs-input "[$(cm 01 "$Q"), $(cm 02 "Q-001: a"), $(cm 03 "$DG")]")"; nx "answer before the delegation: grill" pj-grill-for-specs-readiness
+gq "$(iss OPEN needs-input "[$(cm 01 "$SO")]")";                    nx "sign-off: decide" decide
+gq "$(iss OPEN spec-ready "[]")";                                   nx "spec-ready: implement" pj-implement 5
+gq "$(iss OPEN spec-ready,bug "[]")";                               nx "spec-ready bug: repro" pj-repro
+gq "$(iss OPEN spec-ready "[$(cm 01 "$TB")]")";                     nx "too big: decompose" pj-decompose
+gq "$(iss OPEN spec-ready "[$(cm 01 "$TB")]" "[]" 2)";              nx "children: run them" children
+gq "$(iss OPEN spec-ready "[$(cm 01 "$ST")]" "$DRAFT_PR")" "$(prj true h1 "[]")"; nx "stopped: decide" decide
+gq "$(iss OPEN spec-ready "[$(cm 01 "$ST"), $(cm 02 "$DG"), $(cm 03 "$AN")]" "$DRAFT_PR")" "$(prj true h1 "[]")"
+nx "answered stop: rerun the skill" pj-implement
+ok "answered stop reason"     test "$(jv .reason)" = answered-stop
+echo c01 > "$HD/5.acted"
+nx "acted stop: back to the PR state" pj-implement
+ok "acted stop reason"        test "$(jv .reason)" = draft
+gq "$(iss OPEN spec-ready "[$(cm 01 "$ST"), $(cm 02 "$DG"), $(cm 03 "$AN")]" "$OPEN_PR")" "$(prj false h1 "[]")"
+nx "acted stop, PR ready: review" pj-review 9
+rm -f "$HD/5.acted"
+gq "$(iss OPEN spec-ready "[$(cm 01 "$RS"), $(cm 02 "$DG"), $(cm 03 "$AN")]")"; nx "answered no-repro: implement" pj-implement
+AS=$(mark pj-address-review stopped reason=ac-change)
+gq "$(iss OPEN spec-ready "[$(cm 01 "$AS"), $(cm 02 "$DG"), $(cm 03 "$AN")]" "$OPEN_PR")" "$(prj false h1 "[$(rv 1 1 h1)]")"
+nx "answered address-review stop: rerun on the PR" pj-address-review 9
+gq "$(iss OPEN spec-ready "[]" "$DRAFT_PR")" "$(prj true h1 "[]")";  nx "draft PR: implement" pj-implement
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h1 "[]")";  nx "ready PR: review" pj-review 9
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h1 "[$(rv 1 2 h1)]" "[$(th T1 "$(mark pj-review review round=1)
+bug" )]")";                                                         nx "blocking threads: address" pj-address-review 9
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h2 "[$(rv 1 2 h1)]" "[$(th T1 "$RP
+Fixed")]")";                                                        nx "fixes pushed: review" pj-review
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h2 "[$(rv 1 2 h1), $(rv 2 0 h2)]" "[$(th T1 "nit" )]")"
+nx "clean review: report" report
+ok "report reason clean"      test "$(jv .reason)" = clean
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h4 "[$(rv 1 2 h1), $(rv 2 1 h2), $(rv 3 1 h3)]")"
+nx "round 3: report anyway" report
+ok "report reason rounds"     test "$(jv .reason)" = rounds
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h1 "[$(rv 1 1 h1)]" "[$(th T1 "$ASK
+?")]")";                                                            nx "ask thread: decide-pr" decide-pr 9
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h1 "[$(rv 1 1 h1)]" "[$(th T1 "$RP
+Declined")]")";                                                     nx "all declined: report" report
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h1 "[$(rv 1 1 h1)]" "[$(th T1 "do it" NONE)]")"
+nx "untrusted thread only: report" report
+gq "$(iss OPEN spec-ready "[$(cm 01 "$DN")]" "$OPEN_PR")" "$(prj false h2 "[$(rv 1 0 h2)]")"; nx "reported head: none" none
+gq "$(iss OPEN spec-ready "[$(cm 01 "$DN")]" "$OPEN_PR")" "$(prj false h3 "[$(rv 1 0 h2)]")"; nx "new commits after the report: review" pj-review
+
+echo "handhold: start and run"
+hh_fresh() { # <name>: a new fake agent state, and no driver files for #5
+  export FAKE_CLAUDE="$ROOT/handhold/claude-$1"; mkdir -p "$FAKE_CLAUDE"
+  rm -f "$HD/5.jsonl" "$HD/5.log" "$HD/5.acted"
+}
+calls() { sed 's/ --.*//' "$FAKE_CLAUDE/calls" | tr '\n' '|'; }
+hh_fresh start
+gq "$(iss CLOSED "" "[]")"
+run "$H" start 5;             ok "closed: does nothing" sh -c "test '$(jv .reason)' = closed && test ! -s '$FAKE_GH/comments'"
+gq "$(iss OPEN "" "[]" "[]" 0 NONE)"
+run "$H" start 5;             ok "untrusted author: exit 3" sh -c "test $rc -eq 3 && echo '$out' | grep -q untrusted-author"
+gq "$(iss OPEN spec-ready "[$(cm 01 "$DN")]" "$OPEN_PR")" "$(prj false h2 "[$(rv 1 0 h2)]")"
+run "$H" start 5;             ok "already reported: does nothing" sh -c "test '$(jv .reason)' = reported && test ! -s '$FAKE_GH/comments'"
+mkdir -p "$HD/5.lock"; echo $$ > "$HD/5.lock/pid"; gq "$(iss OPEN "" "[]")"
+run "$H" start 5;             ok "driver running: exit 3" sh -c "test $rc -eq 3 && echo '$out' | grep -q running"
+rm -rf "$HD/5.lock"
+cp -R "$S" "$ROOT/noguard"; rm "$ROOT/noguard/pj-guard.sh"
+run "$ROOT/noguard/handhold.sh" start 5; ok "no guard: exit 3" sh -c "test $rc -eq 3 && echo '$out' | grep -q no-guard"
+hh_fresh stall
+run "$H" run 5 r1;            ok "no progress: stop, exit 3" sh -c "test $rc -eq 3 && test '$(jv .action)' = stopped"
+ok "steps: grill twice, then report" test "$(calls)" = \
+  "-p /pj-grill-for-specs-readiness 5|-p /pj-grill-for-specs-readiness 5|-p /pj-handhold report 5 run=r1 outcome=stopped-no-progress|"
+ok "each step: auto mode, budget, guard" sh -c "head -1 '$FAKE_CLAUDE/calls' | grep -q -- '--permission-mode auto --max-budget-usd 15 --settings .*pj-guard.sh'"
+ok "steps logged"             test "$(jq -rs 'map(.session) | join(",")' "$HD/5.jsonl")" = s1,s2,s3
+ok "lock released"            test ! -e "$HD/5.lock"
+hh_fresh reportfail; : > "$FAKE_GH/comments"; touch "$FAKE_CLAUDE/fail-3"
+run "$H" run 5 r2;            ok "report fails: plain stopped comment" grep -q '"event":"stopped".*"reason":"report-failed"' "$FAKE_GH/comments"
+hh_fresh budget
+FAKE_COST=70 run "$H" run 5 r3; ok "run budget: stop" grep -q 'outcome=stopped-budget' "$FAKE_CLAUDE/calls"
+hh_fresh flow
+gq "$(iss OPEN spec-ready "[]")" "null" "$FAKE_CLAUDE/1.json"
+gq "$(iss OPEN spec-ready "[]" "$OPEN_PR")" "$(prj false h1 "[$(rv 1 0 h1)]")" "$FAKE_CLAUDE/2.json"
+gq "$(iss OPEN "" "[]")"
+run "$H" run 5 r4;            ok "flow: grill, implement, report clean" test "$(calls)" = \
+  "-p /pj-grill-for-specs-readiness 5|-p /pj-implement 5|-p /pj-handhold report 5 run=r4 outcome=clean|"
+ok "flow: exit 0, 3 steps"    sh -c "test $rc -eq 0 && test '$(jv .steps)' = 3"
+unset FAKE_CLAUDE
 
 echo "docs flow diagram"
 R=$(cd "$S/../../.." && pwd); F="$R/docs/flow.svg"; X="$R/docs/index.html"; RM="$R/README.md"

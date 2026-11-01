@@ -39,6 +39,9 @@ Run `.pj/scripts/state.sh issue <n>`.
 
 Run `.pj/scripts/spec.sh hash <n>`. If `match` is false, stop and suggest grill. The spec changed after the sign-off.
 
+If the last `stopped` marker has answers after it, read them with `.pj/scripts/read.sh issue <n>`.
+Follow the answers. Record each one under Agent decisions in the PR body.
+
 ### 2. Check the bite size
 
 Read the spec from `issues/<n>/spec.md` on `attachments`. Read `biteSize` from `.pj/config.json`.

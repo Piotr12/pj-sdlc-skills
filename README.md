@@ -1,9 +1,9 @@
 # pj SDLC skills
 
 Agent skills that take a GitHub or Forgejo issue from spec to a merged PR.
-Version 0.2.0 has ten skills. All of them follow one protocol: `skills/pj-prep-the-repo/reference/protocol.md`.
+Version 0.2.0 has eleven skills. All of them follow one protocol: `skills/pj-prep-the-repo/reference/protocol.md`.
 
-![pj issue flow. A Fresh issue goes to pj-grill-for-specs-readiness. Grill asks questions with the needs-input label. A human answers and signs off the spec. For a UI change, pj-mock-it-up makes mockups, and a human picks one. Then the issue is spec-ready. pj-implement opens a PR, after pj-repro for a bug. pj-decompose splits an issue that is too big. With a PR ready for review, the issue has the Implemented state. pj-review and pj-address-review loop on the PR. A human merges the PR, and the issue gets the Done state. pj-prep-the-repo runs once for each repo. pj-doctor and pj-healthcheck change nothing.](docs/flow.svg)
+![pj issue flow. A Fresh issue goes to pj-grill-for-specs-readiness. Grill asks questions with the needs-input label. A human answers and signs off the spec. For a UI change, pj-mock-it-up makes mockups, and a human picks one. Then the issue is spec-ready. pj-implement opens a PR, after pj-repro for a bug. pj-decompose splits an issue that is too big. With a PR ready for review, the issue has the Implemented state. pj-review and pj-address-review loop on the PR. A human merges the PR, and the issue gets the Done state. pj-prep-the-repo runs once for each repo. pj-doctor and pj-healthcheck change nothing. pj-handhold runs the whole flow for one issue with no human, and a human merges.](docs/flow.svg)
 
 ## Skills
 
@@ -19,12 +19,13 @@ Version 0.2.0 has ten skills. All of them follow one protocol: `skills/pj-prep-t
 | `pj-decompose` | Splits an issue that is too big into child issues. |
 | `pj-repro` | Reproduces a bug with a failing test before the fix. |
 | `pj-healthcheck` | Checks the repo setup, `attachments`, and `docs/`. It changes nothing. |
+| `pj-handhold` | Takes one issue through the whole flow with no human. A new agent session runs each step. A human merges. |
 
 The scripts are in `skills/pj-prep-the-repo/scripts/`. `forge/` holds one adapter for each forge: GitHub and Forgejo.
 `pj-prep-the-repo` copies the scripts and the adapter for the repo to `.pj/scripts/`. The other skills use that copy.
 Install all skills together.
 
-The Claude Code plugin also adds a guard hook. It blocks pushes to `main`, force-pushes, merges, approvals, issue closes, and `gh`, `fj`, or API writes outside the scripts.
+The Claude Code plugin also adds a guard hook. `pj-handhold` adds the same guard to each of its steps. It blocks pushes to `main`, force-pushes, merges, approvals, issue closes, and `gh`, `fj`, or API writes outside the scripts.
 
 ## Requirements
 

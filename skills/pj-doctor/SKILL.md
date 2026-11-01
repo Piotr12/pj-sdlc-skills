@@ -75,6 +75,7 @@ If delegation is unavailable, use bounded serial passes. Report partial coverage
 - Finish work before you start new work. In each priority, older items go first.
 - Skip an issue if an issue in its `dependsOn` is open.
 - Skip an issue that has another assignee.
+- Skip an issue with an active `delegation`, and its PRs. `pj-handhold` runs them. List the issue under Running.
 - A last marker `stopped` with `reason` `too-big`: suggest `pj-decompose`, not `pj-implement`.
 
 ## Human actions
@@ -113,6 +114,9 @@ Human
 - #39  answer Q-016 to Q-018            @alice, 2 days
 - #47  review round 3 is clean: merge   @bob, 5 hours
 - #30  all child issues closed: close   @alice, 1 day
+
+Running
+- #61  pj-handhold run 20261101-0930-a3f9, 2 hours
 ```
 
 Use `timezone` from `.pj/config.json` for the time.

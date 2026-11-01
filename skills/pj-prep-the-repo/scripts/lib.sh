@@ -145,7 +145,7 @@ pj_has_marker() { # <file>: the first line is a pj:v1 marker for any event
 
 # jq helpers for --jq programs: the marker of a body (null if none), the test for one event,
 # the login of an author, a body quoted line by line, and a comment header with its trust.
-PJ_JQ_DEFS='def mk: (split("\n")[0] | rtrimstr("\r")) as $l
+PJ_JQ_DEFS='def mk: ((split("\n")[0] // "") | rtrimstr("\r")) as $l
     | if ($l | startswith("<!-- pj:v1 ")) and ($l | endswith(" -->"))
       then (try ($l | ltrimstr("<!-- pj:v1 ") | rtrimstr(" -->") | fromjson) catch null) else null end;
   def is($e): (mk | . != null and .event == $e);
